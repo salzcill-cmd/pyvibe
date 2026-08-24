@@ -5,8 +5,8 @@
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-0.3.0-7C3AED?style=flat-square)](https://pypi.org/project/pyvibe)
-[![Tests](https://img.shields.io/badge/Tests-324%20passing-22C55E?style=flat-square)](#testing)
+[![Version](https://img.shields.io/badge/Version-0.5.0-7C3AED?style=flat-square)](https://pypi.org/project/pyvibe)
+[![Tests](https://img.shields.io/badge/Tests-396%20passing-22C55E?style=flat-square)](#testing)
 
 ---
 
@@ -36,10 +36,15 @@ open http://localhost:3000
 | Setup ribet | Zero config, `pip install` langsung jalan |
 | Ga tau mulai dari mana | Dokumentasi storytelling, interactive playground |
 | Responsive susah | Semua komponen auto responsive |
-| CSS ribet | Built-in design system dengan 9 themes |
+| CSS ribet | Built-in design system dengan 9 themes + Design Tokens |
 | Charts ribet | 6 chart types tanpa dependency |
-| Forms ribet | Built-in validation dengan 12+ validators |
+| Forms ribet | Multi-step, conditional, auto-save forms built-in |
 | SEO ribet | Built-in meta tags, sitemap, OG tags |
+| SSR ribet | Built-in SSR + Streaming renderer |
+| PWA ribet | Built-in manifest, service worker, offline page |
+| GraphQL ribet | Built-in query/mutation builder |
+| Error handling ribet | Error boundaries dengan fallback UI |
+| Real-time ribet | WebSocket client dengan auto-reconnect |
 
 ---
 
@@ -201,6 +206,471 @@ row_items = baris(kolom(6, par("Kiri")), kolom(6, par("Kanan")))
 | Dashboard | `dashboard(judul="X", stats=[...])` | 30+ baris kode |
 | Portofolio | `portofolio("Andi", skill=[...])` | 15+ baris kode |
 | Toko | `toko("Toko A", produk=[...])` | 20+ baris kode |
+
+---
+
+## 📡 SSR & Streaming
+
+Server-Side Rendering untuk SEO & performance.
+
+```python
+from pyvibe import SSRRenderer, StreamingRenderer, hydrate_script
+
+# SSR Renderer
+ssr = SSRRenderer(app)
+html = ssr.render_route("/")
+full_page = ssr.render_page("/", title="My App", meta={"description": "..."})
+
+# Streaming Renderer
+stream = StreamingRenderer(app)
+for chunk in stream.stream_route("/"):
+    response.write(chunk)  # Stream to client
+
+# Client-side hydration
+script = hydrate_script("app")
+# <script>{script}</script>
+
+# Pre-render at build time
+pre = PreRenderer(app)
+pre.add_routes(["/", "/about", "/contact"])
+pre.render_all("dist/")
+```
+
+---
+
+## 📱 PWA Support
+
+Progressive Web App — installable, offline-capable.
+
+```python
+from pyvibe import PWAManifest, ServiceWorker, OfflinePage, PWABuilder
+
+# Generate manifest.json
+manifest = PWAManifest(
+    name="My App",
+    short_name="MyApp",
+    theme_color="#7C3AED",
+)
+manifest.add_default_icons()
+manifest.save("manifest.json")
+
+# Generate service worker
+sw = ServiceWorker()
+sw.add_cache("static-v1", ["/style.css", "/app.js"])
+sw.add_cache_first("/images/", "images-v1")
+sw.add_network_first("/api/", "api-cache")
+sw.add_stale_while_revalidate("/fonts/", "fonts-v1")
+sw.save("sw.js")
+
+# Offline page
+offline = OfflinePage(title="Offline", message="No internet")
+offline.save("offline.html")
+
+# All-in-one PWA setup
+pwa = PWABuilder(name="My App", theme_color="#7C3AED")
+pwa.setup("dist/")  # Generates manifest.json, sw.js, offline.html
+print(pwa.get_html_tags())  # All HTML tags needed
+```
+
+---
+
+## 🖼️ Image Optimizer
+
+Optimized images dengan lazy loading & responsive.
+
+```python
+from pyvibe import OptimizedImage, ResponsiveImage, BlurPlaceholder
+from pyvibe import ImageGallery, AvatarOptimizer, generate_srcset
+
+# Lazy loaded image
+img = OptimizedImage("photo.jpg", alt="Photo", width=800, height=600)
+html = img.render()
+
+# With blur placeholder
+img = BlurPlaceholder(
+    src="photo.jpg",
+    alt="Photo",
+    blur_data_url="data:image/jpeg;base64,...",
+    width=800,
+    height=600,
+)
+
+# Responsive image
+img = ResponsiveImage(
+    "photo.jpg",
+    alt="Photo",
+    sizes=[(640, "100vw"), (1024, "50vw"), (1920, "33vw")],
+)
+
+# Image gallery with lightbox
+gallery = ImageGallery(
+    images=[{"src": "img1.jpg", "alt": "Photo 1"}, "img2.jpg"],
+    columns=3,
+    lightbox=True,
+)
+
+# Avatar with initials fallback
+av = AvatarOptimizer(name="Andi Pratama", size="48px")
+
+# Generate srcset
+srcset = generate_srcset("photo.jpg", [640, 1024, 1920])
+```
+
+---
+
+## 🎨 Design Tokens
+
+Sistem desain yang konsisten — ganti warna sekali, berubah di semua tempat.
+
+```python
+from pyvibe import DesignTokens
+
+tokens = DesignTokens()
+tokens.colors.primary = "#FF6B6B"
+tokens.colors.secondary = "#4ECDC4"
+tokens.typography.font_family = "'Inter', sans-serif"
+
+# Generate CSS custom properties
+print(tokens.to_css_variables())
+# :root {
+#   --pv-color-primary: #FF6B6B;
+#   --pv-color-secondary: #4ECDC4;
+#   --pv-font-family: 'Inter', sans-serif;
+#   ...
+# }
+
+# Generate Tailwind config
+print(tokens.to_tailwind_config())
+
+# Generate SCSS variables
+print(tokens.to_scss_variables())
+
+# Apply built-in theme
+tokens.apply_theme("dark")
+tokens.apply_theme("nature")
+tokens.apply_theme("sunset")
+```
+
+---
+
+## 🛡️ Error Boundaries
+
+Tangkap error, tampilkan fallback UI — error gak bikin crash.
+
+```python
+from pyvibe import ErrorBoundary, FallbackRenderer, RecoveryBoundary
+
+# Wrap components with error boundary
+boundary = ErrorBoundary(
+    fallback=paragraf("Terjadi kesalahan!"),
+    on_error=lambda e: print(f"Error: {e.message}"),
+)
+boundary.add(judul("Hello"))
+boundary.add(broken_component)  # If this fails, shows fallback
+html = boundary.render()
+
+# Pre-built fallback UIs
+html = FallbackRenderer.error_card("Something broke!", details="Error message")
+html = FallbackRenderer.not_found("Page not found", code="404")
+html = FallbackRenderer.loading_skeleton(lines=3)
+
+# Auto-retry on error
+recovery = RecoveryBoundary(max_retries=3, retry_delay=1.0)
+recovery.add(unstable_component)
+html = recovery.render()
+```
+
+---
+
+## 📦 Bundler & Optimizer
+
+Optimasi output untuk production.
+
+```python
+from pyvibe import Bundler, HTMLMinifier, CSSPurger, JSMinifier
+
+# Minify HTML
+minified = HTMLMinifier.minify("<div>  Hello  </div>")
+# Output: <div>Hello</div>
+
+# Purge unused CSS
+purged = CSSPurger.purge(css_content, html_content)
+
+# Minify JavaScript
+minified_js = JSMinifier.minify(js_content)
+
+# Full build report
+bundler = Bundler()
+report = bundler.build_report("dist/")
+print(report["total_size_human"])  # "45.2 KB"
+```
+
+---
+
+## 🧩 Web Components
+
+Export PyVibe components sebagai Web Components — dipakai di framework apapun.
+
+```python
+from pyvibe import web_component, register_all
+
+# Create web component from PyVibe function
+@web_component("pv-button")
+def pv_button(name="Klik", color="#7C3AED"):
+    return tombol(name, warna=color)
+
+# Register all built-in components
+register_all()
+
+# Get JS for all components
+script = generate_web_components_script()
+```
+
+---
+
+## 📊 GraphQL Client
+
+GraphQL client tanpa ribet.
+
+```python
+from pyvibe import GraphQLClient, Query, Mutation, Fragment
+
+# Create client
+client = GraphQLClient("https://api.example.com/graphql")
+client.set_header("Authorization", "Bearer token123")
+
+# Query
+result = client.query("""
+    query { users { id name email } }
+""")
+if result.ok:
+    print(result.data)
+
+# Query builder
+q = Query("users").fields("id", "name", "email").args(first=10)
+result = client.execute(q)
+
+# Nested fields
+q = Query("users").fields("id", "name").nested("posts", ["id", "title"])
+
+# Mutation
+m = Mutation("createUser").args(name="Andi", email="andi@test.com").fields("id", "name")
+result = client.execute(m)
+
+# Fragments
+user_fields = Fragment("UserFields", "User").fields("id", "name", "email")
+```
+
+---
+
+## 🤖 AI Integration
+
+AI-powered UI generation & code suggestions.
+
+```python
+from pyvibe import AIUIBuilder, PromptTemplates, CodeGenerator
+
+# Generate UI from description
+ai = AIUIBuilder()
+suggestions = ai.generate("Bikin landing page untuk kopi shop")
+for s in suggestions:
+    print(f"{s.component}: {s.code}")
+
+# Generate complete code
+code = CodeGenerator.landing_page(
+    title="Kopi Gacor",
+    subtitle="Kopi terenak di Indonesia",
+    features=["Enak", "Murah", "Cepat"],
+)
+print(code)
+
+code = CodeGenerator.dashboard(title="Admin Panel")
+code = CodeGenerator.form_page(fields=["Nama", "Email", "Pesan"])
+
+# Prompt templates
+prompt = PromptTemplates.landing_page("My Brand", "Best products")
+```
+
+---
+
+## 🔗 Context/Provider Pattern
+
+Share state tanpa passing props.
+
+```python
+from pyvibe import createContext, useContext, Provider, ContextProvider
+
+# Create contexts
+ThemeContext = createContext("light")
+UserContext = createContext({"name": "Guest"})
+
+# Python provider
+html = Provider(ThemeContext, "dark",
+    judul("Hello"),
+    paragraf("World"),
+)
+
+# HTML+JS provider
+html = ContextProvider(
+    contexts={"theme": "dark", "lang": "id", "user": {"name": "Andi"}},
+    children=[judul("Hello")],
+)
+
+# Built-in contexts
+from pyvibe import ThemeContext, LangContext, UserContext, AuthContext
+```
+
+---
+
+## 📋 Advanced Forms
+
+Multi-step, conditional, auto-save forms.
+
+```python
+from pyvibe import MultiStepForm, ConditionalField, FormArray, AutoSaveForm
+from pyvibe import Field
+
+# Multi-step form
+form = MultiStepForm("registration")
+form.step("Personal Info", [
+    Field.text("nama", label="Nama", required=True),
+    Field.email("email", label="Email"),
+])
+form.step("Address", [
+    Field.text("alamat", label="Alamat"),
+    Field.text("kota", label="Kota"),
+])
+form.step("Confirmation", [
+    Field.checkbox("agree", label="Saya setuju"),
+])
+html = form.render()
+
+# Conditional field
+html = ConditionalField(
+    trigger_field="tipe_akun",
+    trigger_value="personal",
+    children=[Field.text("nama_lengkap")],
+    else_children=[Field.text("nama_perusahaan")],
+).render()
+
+# Dynamic field array
+items = FormArray("items", fields=[
+    Field.text("name", label="Item Name"),
+    Field.number("qty", label="Quantity"),
+], min_items=1, max_items=10)
+
+# Auto-save form
+form = AutoSaveForm("my-form", auto_save_key="draft")
+form.add_field(Field.text("nama"))
+form.add_field(Field.email("email"))
+html = form.render()
+```
+
+---
+
+## 🔌 WebSocket Client
+
+Real-time connection dengan auto-reconnect.
+
+```python
+from pyvibe import WebSocketClient, WebSocketManager, Channel
+
+# Single connection
+ws = WebSocketClient("ws://localhost:8080", auto_reconnect=True)
+
+@ws.on_event("message")
+def handle(data):
+    print(f"Received: {data}")
+
+ws.connect()
+ws.send({"type": "chat", "text": "Hello!"})
+ws.send_json({"type": "typing", "user": "Andi"})
+
+# Multiple connections
+mgr = WebSocketManager()
+mgr.add("chat", "ws://localhost:8080/chat")
+mgr.add("notifications", "ws://localhost:8080/notify")
+mgr.on_all("message", lambda name, data: print(f"{name}: {data}"))
+mgr.connect_all()
+
+# Channel system
+channel = Channel("chat", ws)
+channel.join("room-1")
+channel.send({"text": "Hello room!"})
+channel.on("message", lambda data: print(data))
+```
+
+---
+
+## ⚡ Lazy Loading & Code Splitting
+
+Muat komponen saat dibutuhkan.
+
+```python
+from pyvibe import lazy, suspense, ChunkManager, dynamic_import
+
+# Lazy load komponen
+Chart = lazy("pyvibe.components.charts", "chart_bar")
+# Only loads when called!
+html = Chart(data=[...])
+
+# Suspense wrapper
+page = suspense(
+    loading=loader(),
+    children=[Chart(data=[...])],
+)
+
+# Code splitting
+chunks = ChunkManager()
+chunks.define("charts", ["pyvibe.components.charts"], components=["chart_bar"])
+chunks.define("forms", ["pyvibe.forms"], components=["FormBuilder"])
+chunks.load("charts")  # Only load when needed
+chunks.load_parallel(["charts", "forms"])  # Parallel loading
+
+# Dynamic import
+charts = dynamic_import("pyvibe.components.charts")
+html = charts.chart_bar(data=[...])
+```
+
+---
+
+## 🎭 Component Effects
+
+Visual effects yang bisa di-chain.
+
+```python
+# Glassmorphism
+card().glass().render()  # Semi-transparent blur background
+
+dark_card().dark_glass().render()  # Dark glass
+
+# Glow effect
+card().glow("#7C3AED", "20px").render()  # Purple glow
+
+# Skeleton loading
+skeleton().skeleton(width="200px", height="20px").render()
+
+# Neon text
+teks("Hello").neon("#7C3AED").render()  # Neon glow text
+
+# Material depth
+card().depth(3).render()  # 5 levels of elevation
+
+# Scale transform
+card().scale(1.05).render()  # Scale up
+
+# Floating animation
+icon().float().render()  # Gentle floating motion
+
+# Marquee
+teks("Scrolling text").marquee().render()  # Scrolling text
+
+# Pulse
+badge().pulse().render()  # Pulsing animation
+
+# Typing cursor
+teks("| ").typing_cursor().render()  # Blinking cursor
+```
 
 ---
 
@@ -1025,40 +1495,55 @@ app.jalan()
 
 ```
 pyvibe/
-├── core/           # App, Component, Renderer, State, Router
-├── components/     # 82+ UI components
-│   ├── basic.py    # Typography, media, decorative
-│   ├── input.py    # Form inputs, buttons
-│   ├── layout.py   # Cards, grids, sections
-│   ├── navigation.py # Navbar, sidebar, footer
-│   ├── feedback.py # Alerts, loaders, badges
-│   ├── data.py     # Tables, charts, lists
-│   ├── advanced.py # Carousel, accordion, modal
-│   ├── extras.py   # Stepper, timeline, rating
-│   ├── modern.py   # Pagination, toast, switch
-│   ├── charts.py   # Bar, line, pie, doughnut
-│   └── advanced_ui.py # Calendar, kanban, video
-├── style/          # Themes, animations, responsive
-├── forms/          # Form builder, validators
-├── reactivity.py   # Reactive state, computed, watch
-├── navigation.py   # SEO, sitemap, params
-├── hooks.py        # 12 composable hooks
-├── logging.py      # Multi-handler logging
-├── performance.py  # Timer, monitor, profiler
-├── security/       # CSRF, XSS, rate limiting
-├── middleware/      # CORS, logger, auth, cache
-├── cache/          # In-memory, file-based cache
-├── database/       # SQLite ORM
-├── auth/           # Authentication system
-├── i18n/           # Internationalization
-├── events/         # Event emitter
-├── errors/         # Error handling (Indonesian)
-├── plugins/        # Plugin system
-├── deploy/         # Vercel, Netlify, GitHub Pages
-├── testing/        # Test utilities
-├── cli/            # Command line tools
-├── dev/            # Dev server with WebSocket
-└── parser/         # Natural Language parser
+├── core/              # App, Component, Renderer, State, Router
+├── components/        # 82+ UI components
+│   ├── basic.py       # Typography, media, decorative
+│   ├── input.py       # Form inputs, buttons
+│   ├── layout.py      # Cards, grids, sections
+│   ├── navigation.py  # Navbar, sidebar, footer
+│   ├── feedback.py    # Alerts, loaders, badges
+│   ├── data.py        # Tables, charts, lists
+│   ├── advanced.py    # Carousel, accordion, modal
+│   ├── extras.py      # Stepper, timeline, rating
+│   ├── modern.py      # Pagination, toast, switch
+│   ├── charts.py      # Bar, line, pie, doughnut
+│   ├── advanced_ui.py # Calendar, kanban, video
+│   └── ...            # More components
+├── style/             # Themes, animations, responsive
+├── forms/             # Form builder, validators
+├── forms_advanced.py  # Multi-step, conditional, auto-save
+├── reactivity.py      # Reactive state, computed, watch
+├── navigation.py      # SEO, sitemap, params
+├── hooks.py           # 12 composable hooks
+├── logging.py         # Multi-handler logging
+├── performance.py     # Timer, monitor, profiler
+├── lazy.py            # Lazy loading, code splitting, suspense
+├── websocket.py       # WebSocket client, manager, channels
+├── ssr.py             # Server-Side Rendering & streaming
+├── pwa.py             # PWA manifest, service worker, offline
+├── image_optimizer.py # Lazy images, responsive, blur placeholder
+├── design_tokens.py   # CSS variables, Tailwind config, SCSS
+├── error_boundary.py  # Error boundaries & fallback UI
+├── bundler.py         # HTML/CSS/JS minification & optimization
+├── webcomponents.py   # Web Components export
+├── graphql.py         # GraphQL client & query builder
+├── ai.py              # AI/LLM integration & code generation
+├── context.py         # Context/Provider pattern
+├── easy.py            # Super simple API (one-liners)
+├── security/          # CSRF, XSS, rate limiting
+├── middleware/         # CORS, logger, auth, cache
+├── cache/             # In-memory, file-based cache
+├── database/          # SQLite ORM
+├── auth/              # Authentication system
+├── i18n/              # Internationalization
+├── events/            # Event emitter
+├── errors/            # Error handling (Indonesian)
+├── plugins/           # Plugin system
+├── deploy/            # Vercel, Netlify, GitHub Pages
+├── testing/           # Test utilities
+├── cli/               # Command line tools
+├── dev/               # Dev server with WebSocket
+└── parser/            # Natural Language parser
 ```
 
 ---
@@ -1067,14 +1552,15 @@ pyvibe/
 
 ```bash
 # Run all tests
-python tests/test_charts.py
-python tests/test_advanced_ui.py
-python tests/test_hooks.py
-python tests/test_navigation.py
-python tests/test_logging_performance.py
-python tests/test_reactivity.py
+python tests/test_charts.py          # 42 tests
+python tests/test_advanced_ui.py     # 70 tests
+python tests/test_hooks.py           # 48 tests
+python tests/test_navigation.py      # 56 tests
+python tests/test_logging_performance.py  # 61 tests
+python tests/test_reactivity.py      # 47 tests
+python tests/test_lazy.py            # 72 tests
 
-# Total: 324 tests passing ✅
+# Total: 396 tests passing ✅
 ```
 
 ---
@@ -1098,19 +1584,32 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## 📊 Comparison with Other Frameworks
 
-| Feature | PyVibe v0.3.0 | React | Vue | Django | Flask |
+| Feature | PyVibe v0.5.0 | React | Vue | Angular | Svelte |
 |---------|:---:|:---:|:---:|:---:|:---:|
 | **Components** | 82+ | Manual | Manual | Manual | Manual |
 | **Charts** | 6 types | Manual | Manual | Manual | Manual |
-| **Forms** | Built-in | Manual | Manual | Manual | Manual |
+| **Forms** | Multi-step | Manual | Manual | ✅ | Manual |
 | **Themes** | 9 built-in | Manual | Manual | Manual | Manual |
-| **Animations** | 22 presets | Manual | Manual | Manual | Manual |
-| **SEO** | Built-in | Manual | Manual | ⚠️ | Manual |
-| **Reactivity** | Built-in | ✅ | ✅ | ❌ | ❌ |
-| **Hooks** | 12 hooks | ✅ | ✅ | ❌ | ❌ |
-| **Logging** | Built-in | Manual | Manual | ✅ | Manual |
-| **Performance** | Built-in | Manual | Manual | Manual | Manual |
-| **Hot Reload** | ✅ WebSocket | ✅ | ✅ | ⚠️ | ⚠️ |
+| **Animations** | 22+ presets | Manual | Manual | ✅ | ✅ |
+| **SSR/Streaming** | ✅ | ✅ RSC | ✅ Nuxt | ✅ | ✅ SvelteKit |
+| **PWA** | ✅ | Manual | ✅ | ✅ | ✅ |
+| **Lazy Loading** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Code Splitting** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **WebSocket Client** | ✅ auto-reconnect | Manual | Manual | ✅ | ✅ |
+| **GraphQL** | ✅ builder | Manual | Manual | Manual | Manual |
+| **Design Tokens** | ✅ | Manual | Manual | ✅ | Manual |
+| **Error Boundaries** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Image Optimization** | ✅ lazy + blur | Manual | Manual | ✅ | Manual |
+| **Web Components** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Context/Provider** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **SEO** | ✅ built-in | Manual | Manual | Manual | Manual |
+| **Reactivity** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Hooks** | 12 hooks | ✅ | ✅ | ✅ | ✅ |
+| **AI Integration** | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Bundler** | ✅ minify+purge | ✅ | ✅ | ✅ | ✅ |
+| **Logging** | ✅ | Manual | Manual | ✅ | Manual |
+| **Performance** | ✅ monitor | Manual | Manual | Manual | Manual |
+| **Hot Reload** | ✅ WebSocket | ✅ | ✅ | ✅ | ✅ |
 | **Indonesian** | ✅ | ❌ | ❌ | ❌ | ❌ |
 | **Zero Config** | ✅ | ❌ | ❌ | ❌ | ❌ |
 | **Learning Curve** | ⭐ Easy | 🔴 Steep | 🔶 Medium | 🔶 Medium | 🟡 Easy |
@@ -1119,4 +1618,4 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 *Made with ❤️ in Indonesia 🇮🇩*
 
-*Last updated: August 24, 2026*
+*Last updated: August 24, 2026 | PyVibe v0.5.0 | 82+ Components | 20+ Modules | 396 Tests*

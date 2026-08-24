@@ -16,7 +16,7 @@ Usage:
     app.jalan()
 """
 
-__version__ = "0.3.0"
+__version__ = "0.5.0"
 __author__ = "PyVibe Team"
 
 # Core
@@ -194,6 +194,83 @@ from pyvibe.easy import (
     judul_teks, par, btn, img, link, kartu_sederhana, form_sederhana, tabel_sederhana,
 )
 
+# Lazy Loading & Code Splitting
+from pyvibe.lazy import (
+    lazy, lazy_all, lazy_component, SuspenseComponent, suspense,
+    dynamic_import, dynamic_import_all,
+    ChunkManager, Chunk, get_chunks, define_chunk, load_chunk,
+)
+
+# WebSocket Client
+from pyvibe.websocket import (
+    WebSocketClient, WebSocketManager, WSState,
+    Channel, create_ws_client, ws_url,
+)
+
+# SSR & Streaming
+from pyvibe.ssr import (
+    SSRRenderer, StreamingRenderer, hydrate_script,
+    ssr_meta_tags, PreRenderer,
+)
+
+# PWA
+from pyvibe.pwa import (
+    PWAManifest, ServiceWorker, OfflinePage, PWABuilder,
+)
+
+# Image Optimizer
+from pyvibe.image_optimizer import (
+    OptimizedImage, ResponsiveImage, BlurPlaceholder,
+    ImageGallery, AvatarOptimizer, generate_srcset,
+    lazy_image, avatar,
+)
+
+# Design Tokens
+from pyvibe.design_tokens import (
+    DesignTokens, ColorTokens, TypographyTokens,
+    SpacingTokens, ShadowTokens, BorderTokens,
+    BreakpointTokens, TransitionTokens, ZIndexTokens,
+)
+
+# Error Boundaries
+from pyvibe.error_boundary import (
+    ErrorBoundary, FallbackRenderer, RecoveryBoundary, ErrorCollector,
+)
+
+# Bundler
+from pyvibe.bundler import (
+    Bundler, HTMLMinifier, CSSPurger, JSMinifier, AssetOptimizer,
+)
+
+# Web Components
+from pyvibe.webcomponents import (
+    web_component, register_all, get_registry,
+    generate_web_components_script, WebComponentRegistry,
+)
+
+# GraphQL
+from pyvibe.graphql import (
+    GraphQLClient, Query, Mutation, Fragment, GraphQLResponse,
+)
+
+# AI Integration
+from pyvibe.ai import (
+    AIUIBuilder, SmartSuggestions, PromptTemplates, CodeGenerator,
+)
+
+# Context/Provider
+from pyvibe.context import (
+    createContext, useContext, Provider, ContextProvider,
+    MultiProvider, ThemeContext, LangContext, UserContext,
+    AuthContext, ConfigContext, Context,
+)
+
+# Advanced Forms
+from pyvibe.forms_advanced import (
+    MultiStepForm, ConditionalField, FormArray, AutoSaveForm,
+    FormStep,
+)
+
 __all__ = [
     # Core
     "App", "State", "Component", "Teks", "Router", "tampil",
@@ -320,4 +397,50 @@ __all__ = [
     "halaman", "ringkas", "halaman_sederhana", "landing", "dashboard",
     "halo", "selamat_datang", "portofolio", "toko",
     "judul_teks", "par", "btn", "img", "link", "kartu_sederhana", "form_sederhana", "tabel_sederhana",
+
+    # Lazy Loading & Code Splitting
+    "lazy", "lazy_all", "lazy_component", "suspense",
+    "dynamic_import", "dynamic_import_all",
+    "ChunkManager", "get_chunks", "define_chunk", "load_chunk",
+
+    # WebSocket
+    "WebSocketClient", "WebSocketManager", "WSState",
+    "Channel", "create_ws_client", "ws_url",
+
+    # SSR
+    "SSRRenderer", "StreamingRenderer", "hydrate_script",
+    "ssr_meta_tags", "PreRenderer",
+
+    # PWA
+    "PWAManifest", "ServiceWorker", "OfflinePage", "PWABuilder",
+
+    # Image Optimizer
+    "OptimizedImage", "ResponsiveImage", "BlurPlaceholder",
+    "ImageGallery", "AvatarOptimizer", "generate_srcset",
+    "lazy_image", "avatar",
+
+    # Design Tokens
+    "DesignTokens", "ColorTokens", "TypographyTokens",
+
+    # Error Boundaries
+    "ErrorBoundary", "FallbackRenderer", "RecoveryBoundary",
+
+    # Bundler
+    "Bundler", "HTMLMinifier", "CSSPurger", "JSMinifier",
+
+    # Web Components
+    "web_component", "register_all", "WebComponentRegistry",
+
+    # GraphQL
+    "GraphQLClient", "Query", "Mutation", "Fragment",
+
+    # AI
+    "AIUIBuilder", "SmartSuggestions", "PromptTemplates", "CodeGenerator",
+
+    # Context
+    "createContext", "useContext", "Provider", "ContextProvider",
+    "MultiProvider", "ThemeContext", "LangContext", "UserContext",
+
+    # Advanced Forms
+    "MultiStepForm", "ConditionalField", "FormArray", "AutoSaveForm",
 ]

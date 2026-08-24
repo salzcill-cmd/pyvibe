@@ -594,6 +594,92 @@ class Component:
         import copy
         return copy.deepcopy(self)
 
+    # ==================== Visual Effects ====================
+
+    def glow(self, color: str = "#7C3AED", radius: str = "20px") -> Component:
+        """Add glow effect."""
+        self.style.box_shadow = f"0 0 {radius} {color}40"
+        return self
+
+    def glass(self, opacity: float = 0.1) -> Component:
+        """Add glassmorphism effect."""
+        self.style.background = f"rgba(255, 255, 255, {opacity})"
+        self.style.backdrop_filter = "blur(10px)"
+        self.style.border = "1px solid rgba(255, 255, 255, 0.2)"
+        return self
+
+    def dark_glass(self, opacity: float = 0.3) -> Component:
+        """Add dark glassmorphism effect."""
+        self.style.background = f"rgba(0, 0, 0, {opacity})"
+        self.style.backdrop_filter = "blur(10px)"
+        self.style.border = "1px solid rgba(255, 255, 255, 0.1)"
+        return self
+
+    def gradient_border(self, colors: Optional[List[str]] = None) -> Component:
+        """Add gradient border effect."""
+        c = colors or ["#7C3AED", "#06B6D4"]
+        self.style.border = f"2px solid transparent"
+        self.style.background = (
+            f"linear-gradient(var(--bg, white), var(--bg, white)) padding-box,"
+            f"linear-gradient(135deg, {c[0]}, {c[1]}) border-box"
+        )
+        return self
+
+    def skeleton(self, width: str = "100%", height: str = "20px") -> Component:
+        """Add skeleton loading effect."""
+        self.style.background = "linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)"
+        self.style.background_size = "200% 100%"
+        self.style.animation = "pv-skeleton 1.5s infinite"
+        self.style.border_radius = "4px"
+        self.style.width = width
+        self.style.height = height
+        return self
+
+    def pulse(self) -> Component:
+        """Add pulse animation."""
+        self.style.animation = "pv-pulse 2s infinite"
+        return self
+
+    def float(self) -> Component:
+        """Add floating animation."""
+        self.style.animation = "pv-float 3s ease-in-out infinite"
+        return self
+
+    def typing_cursor(self) -> Component:
+        """Add typing cursor effect."""
+        self.style.border_right = "2px solid currentColor"
+        self.style.animation = "pv-blink 1s step-end infinite"
+        return self
+
+    def neon(self, color: str = "#7C3AED") -> Component:
+        """Add neon glow effect."""
+        self.style.text_shadow = f"0 0 10px {color}, 0 0 40px {color}"
+        return self
+
+    def depth(self, level: int = 1) -> Component:
+        """Add depth/elevation effect."""
+        shadows = {
+            1: "0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)",
+            2: "0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)",
+            3: "0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)",
+            4: "0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)",
+            5: "0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)",
+        }
+        self.style.box_shadow = shadows.get(level, shadows[1])
+        return self
+
+    def scale(self, value: float = 1.05) -> Component:
+        """Add scale transform on hover (via CSS)."""
+        self.style.transform = f"scale({value})"
+        return self
+
+    def marquee(self, direction: str = "left", speed: str = "20s") -> Component:
+        """Add marquee/scrolling effect."""
+        self.style.overflow = "hidden"
+        self.style.white_space = "nowrap"
+        self.style.animation = f"pv-marquee {speed} linear infinite"
+        return self
+
     # ==================== Rendering ====================
 
     def render_attrs(self) -> str:
