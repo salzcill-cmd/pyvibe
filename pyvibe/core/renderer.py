@@ -10,7 +10,7 @@ import json
 import os
 import hashlib
 
-from pyvibe.core.component import Component, StyleProps
+from pyvibe.core.component import Component, Style
 
 
 def tampil(*children: Union[Component, str], **kwargs) -> List[Component]:
