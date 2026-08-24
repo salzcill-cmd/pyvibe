@@ -128,7 +128,13 @@ class TestCase:
 
 def test_components():
     """Test semua components."""
-    from pyvibe import *
+    from pyvibe.components.basic import judul, paragraf, badge
+    from pyvibe.components.input import tombol
+    from pyvibe.components.layout import kartu, grid, baris
+    from pyvibe.components.navigation import navbar, footer
+    from pyvibe.components.feedback import alert, loader
+    from pyvibe.components.data import tabel
+    from pyvibe.components.advanced import modal, accordion
 
     print("Testing components...")
 

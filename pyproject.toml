@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyvibe-id"
-version = "0.1.0"
+version = "0.3.0"
 description = "🐍 Build frontend websites in Python as easy as chatting"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
     {name = "PyVibe Team", email = "hello@pyvibe.dev"},
 ]
-keywords = ["python", "frontend", "web", "framework", "indonesia"]
+keywords = ["python", "frontend", "web", "framework", "indonesia", "ui", "components", "charts", "forms", "seo"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -22,11 +22,21 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: User Interfaces",
 ]
 requires-python = ">=3.9"
 dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/salzcill-cmd/pyvibe"
