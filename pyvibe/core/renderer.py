@@ -540,20 +540,109 @@ small {{ font-size: 0.875rem; color: var(--pv-gray-500); }}
 @keyframes pvPulse {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0.5; }} }}
 @keyframes pvSpin {{ from {{ transform: rotate(0deg); }} to {{ transform: rotate(360deg); }} }}
 @keyframes pvScale {{ from {{ transform: scale(0.95); opacity: 0; }} to {{ transform: scale(1); opacity: 1; }} }}
+@keyframes pvShake {{ 0%, 100% {{ transform: translateX(0); }} 10%, 30%, 50%, 70%, 90% {{ transform: translateX(-4px); }} 20%, 40%, 60%, 80% {{ transform: translateX(4px); }} }}
+@keyframes pvWiggle {{ 0%, 100% {{ transform: rotate(0deg); }} 25% {{ transform: rotate(-3deg); }} 75% {{ transform: rotate(3deg); }} }}
+@keyframes pvFloat {{ 0%, 100% {{ transform: translateY(0); }} 50% {{ transform: translateY(-6px); }} }}
+@keyframes pvHeartbeat {{ 0%, 100% {{ transform: scale(1); }} 15% {{ transform: scale(1.15); }} 30% {{ transform: scale(1); }} 45% {{ transform: scale(1.1); }} }}
+@keyframes pvFlip {{ from {{ transform: perspective(400px) rotateY(0); }} to {{ transform: perspective(400px) rotateY(360deg); }} }}
+@keyframes pvZoomIn {{ from {{ opacity: 0; transform: scale(0.5); }} to {{ opacity: 1; transform: scale(1); }} }}
+@keyframes pvZoomOut {{ from {{ opacity: 0; transform: scale(1.5); }} to {{ opacity: 1; transform: scale(1); }} }}
+@keyframes pvRollIn {{ from {{ opacity: 0; transform: translateX(-100%) rotate(-120deg); }} to {{ opacity: 1; transform: translateX(0) rotate(0deg); }} }}
+@keyframes pvRubberBand {{ 0%, 100% {{ transform: scale(1); }} 30% {{ transform: scaleX(1.25) scaleY(0.75); }} 40% {{ transform: scaleX(0.75) scaleY(1.25); }} 50% {{ transform: scaleX(1.15) scaleY(0.85); }} 65% {{ transform: scaleX(0.95) scaleY(1.05); }} 75% {{ transform: scaleX(1.05) scaleY(0.95); }} }}
+@keyframes pvJello {{ 0%, 100% {{ transform: skewX(0) skewY(0); }} 30% {{ transform: skewX(-12.5deg) skewY(-12.5deg); }} 40% {{ transform: skewX(6.25deg) skewY(6.25deg); }} 50% {{ transform: skewX(-3.125deg) skewY(-3.125deg); }} 65% {{ transform: skewX(1.5625deg) skewY(1.5625deg); }} 75% {{ transform: skewX(-0.78125deg) skewY(-0.78125deg); }} }}
+@keyframes pvSwing {{ 20% {{ transform: rotate(15deg); }} 40% {{ transform: rotate(-10deg); }} 60% {{ transform: rotate(5deg); }} 80% {{ transform: rotate(-5deg); }} 100% {{ transform: rotate(0deg); }} }}
+@keyframes pvTypewriter {{ from {{ width: 0; }} to {{ width: 100%; }} }}
+@keyframes pvBlink {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0; }} }}
+@keyframes pvRipple {{ 0% {{ transform: scale(0); opacity: 1; }} 100% {{ transform: scale(4); opacity: 0; }} }}
 
 .pv-animate-fade-in {{ animation: pvFadeIn 0.3s ease-in; }}
 .pv-animate-slide-up {{ animation: pvSlideUp 0.3s ease-out; }}
 .pv-animate-slide-down {{ animation: pvSlideDown 0.3s ease-out; }}
+.pv-animate-slide-left {{ animation: pvSlideLeft 0.3s ease-out; }}
+.pv-animate-slide-right {{ animation: pvSlideRight 0.3s ease-out; }}
 .pv-animate-bounce {{ animation: pvBounce 0.5s ease-in-out; }}
 .pv-animate-pulse {{ animation: pvPulse 2s infinite; }}
 .pv-animate-spin {{ animation: pvSpin 1s linear infinite; }}
 .pv-animate-scale {{ animation: pvScale 0.3s ease-out; }}
+.pv-animate-shake {{ animation: pvShake 0.5s ease-in-out; }}
+.pv-animate-wiggle {{ animation: pvWiggle 0.5s ease-in-out; }}
+.pv-animate-float {{ animation: pvFloat 3s ease-in-out infinite; }}
+.pv-animate-heartbeat {{ animation: pvHeartbeat 1.5s ease-in-out infinite; }}
+.pv-animate-flip {{ animation: pvFlip 0.6s ease-in-out; }}
+.pv-animate-zoom-in {{ animation: pvZoomIn 0.3s ease-out; }}
+.pv-animate-zoom-out {{ animation: pvZoomOut 0.3s ease-out; }}
+.pv-animate-roll-in {{ animation: pvRollIn 0.6s ease-out; }}
+.pv-animate-rubber {{ animation: pvRubberBand 0.8s ease-in-out; }}
+.pv-animate-jello {{ animation: pvJello 0.8s ease-in-out; }}
+.pv-animate-swing {{ animation: pvSwing 0.8s ease-in-out; transform-origin: top center; }}
+.pv-animate-typewriter {{ animation: pvTypewriter 2s steps(40) forwards, pvBlink 0.75s step-end infinite; overflow: hidden; white-space: nowrap; }}
+
+/* --- Scroll animations (triggered by JS) --- */
+.pv-scroll-fade {{ opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }}
+.pv-scroll-fade.visible {{ opacity: 1; transform: translateY(0); }}
+.pv-scroll-left {{ opacity: 0; transform: translateX(-50px); transition: opacity 0.6s ease, transform 0.6s ease; }}
+.pv-scroll-left.visible {{ opacity: 1; transform: translateX(0); }}
+.pv-scroll-right {{ opacity: 0; transform: translateX(50px); transition: opacity 0.6s ease, transform 0.6s ease; }}
+.pv-scroll-right.visible {{ opacity: 1; transform: translateX(0); }}
+.pv-scroll-scale {{ opacity: 0; transform: scale(0.8); transition: opacity 0.6s ease, transform 0.6s ease; }}
+.pv-scroll-scale.visible {{ opacity: 1; transform: scale(1); }}
+
+/* --- Color Utilities --- */
+.pv-bg-primary {{ background: var(--pv-primary) !important; color: white !important; }}
+.pv-bg-secondary {{ background: var(--pv-secondary) !important; color: white !important; }}
+.pv-bg-success {{ background: var(--pv-success) !important; color: white !important; }}
+.pv-bg-danger {{ background: var(--pv-danger) !important; color: white !important; }}
+.pv-bg-warning {{ background: var(--pv-warning) !important; color: var(--pv-gray-900) !important; }}
+.pv-bg-info {{ background: var(--pv-info) !important; color: white !important; }}
+.pv-text-primary {{ color: var(--pv-primary) !important; }}
+.pv-text-secondary {{ color: var(--pv-secondary) !important; }}
+.pv-text-success {{ color: var(--pv-success) !important; }}
+.pv-text-danger {{ color: var(--pv-danger) !important; }}
+.pv-text-warning {{ color: var(--pv-warning) !important; }}
+.pv-text-info {{ color: var(--pv-info) !important; }}
+
+/* --- Opacity --- */
+.pv-opacity-0 {{ opacity: 0; }}
+.pv-opacity-25 {{ opacity: 0.25; }}
+.pv-opacity-50 {{ opacity: 0.5; }}
+.pv-opacity-75 {{ opacity: 0.75; }}
+.pv-opacity-100 {{ opacity: 1; }}
+
+/* --- Transform --- */
+.pv-translate-y-0 {{ transform: translateY(0); }}
+.pv-translate-y-1 {{ transform: translateY(4px); }}
+.pv-translate-y-2 {{ transform: translateY(8px); }}
+.pv-scale-95 {{ transform: scale(0.95); }}
+.pv-scale-100 {{ transform: scale(1); }}
+.pv-scale-105 {{ transform: scale(1.05); }}
+.pv-rotate-45 {{ transform: rotate(45deg); }}
+.pv-rotate-90 {{ transform: rotate(90deg); }}
+.pv-rotate-180 {{ transform: rotate(180deg); }}
+
+/* --- Truncate / Overflow --- */
+.pv-truncate {{ overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+.pv-line-clamp-2 {{ display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }}
+.pv-line-clamp-3 {{ display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }}
+
+/* --- Transitions --- */
+.pv-transition {{ transition: var(--pv-transition); }}
+.pv-transition-all {{ transition: all 0.3s ease; }}
+.pv-transition-fast {{ transition: all 0.15s ease; }}
+.pv-transition-slow {{ transition: all 0.5s ease; }}
+
+/* --- Backdrop / Overlay --- */
+.pv-backdrop {{ backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(0,0,0,0.3); }}
+.pv-glass {{ background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.2); }}
+.pv-glass-dark {{ background: rgba(17,24,39,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); color: white; }}
 
 /* --- Responsive --- */
 @media (max-width: 1024px) {{
     .pv-grid-4 {{ grid-template-columns: repeat(2, 1fr); }}
     .pv-lg\:hidden {{ display: none; }}
     .pv-lg\:block {{ display: block; }}
+    .pv-lg\:flex {{ display: flex; }}
+    .pv-lg\:grid {{ display: grid; }}
+    .pv-lg\:col-2 {{ grid-template-columns: repeat(2, 1fr); }}
 }}
 
 @media (max-width: 768px) {{
@@ -564,16 +653,35 @@ small {{ font-size: 0.875rem; color: var(--pv-gray-500); }}
     .pv-md\:hidden {{ display: none; }}
     .pv-md\:block {{ display: block; }}
     .pv-md\:flex {{ display: flex; }}
+    .pv-md\:grid {{ display: grid; }}
+    .pv-md\:col-1 {{ grid-template-columns: 1fr; }}
+    .pv-md\:col-2 {{ grid-template-columns: repeat(2, 1fr); }}
     .pv-p-64 {{ padding: 32px 16px; }}
     .pv-py-64 {{ padding-top: 32px; padding-bottom: 32px; }}
     .pv-py-96 {{ padding-top: 48px; padding-bottom: 48px; }}
+    .pv-px-48 {{ padding-left: 24px; padding-right: 24px; }}
 }}
 
 @media (max-width: 640px) {{
     .pv-sm\:hidden {{ display: none; }}
     .pv-sm\:block {{ display: block; }}
     .pv-sm\:flex {{ display: flex; }}
+    .pv-sm\:grid {{ display: grid; }}
+    .pv-sm\:col-1 {{ grid-template-columns: 1fr; }}
+    .pv-sm\:text-center {{ text-align: center; }}
+    .pv-sm\:text-left {{ text-align: left; }}
     .pv-px-32 {{ padding-left: 16px; padding-right: 16px; }}
+    .pv-p-32 {{ padding: 16px; }}
+    .pv-m-16 {{ margin: 8px; }}
+    .pv-gap-16 {{ gap: 8px; }}
+    .pv-gap-24 {{ gap: 12px; }}
+}}
+
+/* --- Print --- */
+@media print {{
+    .pv-no-print {{ display: none !important; }}
+    body {{ background: white; color: black; }}
+    .pv-card {{ box-shadow: none; border: 1px solid #ddd; }}
 }}
 '''
 
@@ -835,6 +943,110 @@ function throttle(func, limit) {
     };
 }
 
+    // Scroll to element
+    scrollTo(id, smooth = true) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
+    }
+
+    // Countdown
+    countdown(id, targetDate, onComplete) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const target = new Date(targetDate).getTime();
+            const diff = target - now;
+            if (diff <= 0) {
+                clearInterval(timer);
+                el.textContent = '00:00:00';
+                if (onComplete) onComplete();
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            el.textContent = `${String(days).padStart(2,'0')}d ${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }, 1000);
+    }
+
+    // Number counter animation
+    animateCount(id, target, duration = 2000) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const start = parseInt(el.textContent) || 0;
+        const range = target - start;
+        const startTime = performance.now();
+        const step = (timestamp) => {
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(start + range * eased).toLocaleString('id-ID');
+            if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    // Copy to clipboard
+    async copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            this.toast('Berhasil disalin!', 'success', 1500);
+        } catch {
+            this.toast('Gagal menyalin.', 'danger');
+        }
+    }
+
+    // Theme toggle (dark/light)
+    toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.classList.toggle('pv-dark');
+        localStorage.setItem('pv-theme', isDark ? 'dark' : 'light');
+    }
+
+    initTheme() {
+        const saved = localStorage.getItem('pv-theme');
+        if (saved === 'dark') document.documentElement.classList.add('pv-dark');
+    }
+}
+
+// Utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func(...args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
 // Initialize
 const pv = new PyVibe();
+
+// Scroll animation observer
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.pv-scroll-fade, .pv-scroll-left, .pv-scroll-right, .pv-scroll-scale').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Init saved theme
+pv.initTheme();
 '''

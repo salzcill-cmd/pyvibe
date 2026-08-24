@@ -93,7 +93,8 @@ Desktop.ini
 output/
 dist/
 build/
-*.html
+# Ignore HTML only in root (generated files)
+/*.html
 
 # Cache
 .cache/

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍 PyVibe Playground</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pv-primary: #7C3AED;
+            --pv-secondary: #06B6D4;
+            --pv-bg: #1E1E2E;
+            --pv-surface: #313244;
+            --pv-text: #CDD6F4;
+            --pv-green: #A6E3A1;
+            --pv-red: #F38BA8;
+            --pv-yellow: #F9E2AF;
+            --pv-blue: #89B4FA;
+            --pv-pink: #F5C2E7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--pv-bg); color: var(--pv-text); height: 100vh; display: flex; flex-direction: column; }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: var(--pv-surface);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header h1 { font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .header h1 span { font-size: 1.5rem; }
+        .header-actions { display: flex; gap: 12px; }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn-run { background: var(--pv-primary); color: white; }
+        .btn-run:hover { background: #6D28D9; }
+        .btn-reset { background: var(--pv-surface); color: var(--pv-text); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-reset:hover { background: rgba(255,255,255,0.1); }
+        .btn-copy { background: transparent; color: var(--pv-green); border: 1px solid var(--pv-green); }
+        .btn-copy:hover { background: rgba(166,227,161,0.1); }
+
+        /* Main layout */
+        .main { display: flex; flex: 1; overflow: hidden; }
+
+        /* Editor panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .panel-header {
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.3);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--pv-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-red { background: #F38BA8; }
+        .dot-yellow { background: #F9E2AF; }
+        .dot-green { background: #A6E3A1; }
+
+        textarea {
+            flex: 1;
+            background: var(--pv-bg);
+            color: var(--pv-text);
+            border: none;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+        }
+
+        /* Preview panel */
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        .preview-panel .panel-header { background: rgba(0,0,0,0.05); color: #6B7280; }
+
+        .preview-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            background: white;
+        }
+
+        /* Templates panel */
+        .templates-bar {
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+        .template-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: transparent;
+            color: var(--pv-text);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .template-chip:hover { background: var(--pv-primary); border-color: var(--pv-primary); color: white; }
+
+        /* Status bar */
+        .status-bar {
+            padding: 4px 16px;
+            background: var(--pv-primary);
+            color: white;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Syntax highlight helpers */
+        .keyword { color: var(--pv-pink); }
+        .string { color: var(--pv-green); }
+        .comment { color: #6C7086; font-style: italic; }
+        .function { color: var(--pv-blue); }
+        .number { color: var(--pv-yellow); }
+
+        @media (max-width: 768px) {
+            .main { flex-direction: column; }
+            .editor-panel, .preview-panel { flex: 1; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><span>🐍</span> PyVibe Playground</h1>
+        <div class="header-actions">
+            <button class="btn btn-reset" onclick="resetCode()">Reset</button>
+            <button class="btn btn-copy" onclick="copyCode()">Copy</button>
+            <button class="btn btn-run" onclick="runCode()">▶ Run</button>
+        </div>
+    </div>
+
+    <div class="templates-bar">
+        <button class="template-chip" onclick="loadTemplate('hello')">Hello World</button>
+        <button class="template-chip" onclick="loadTemplate('landing')">Landing Page</button>
+        <button class="template-chip" onclick="loadTemplate('dashboard')">Dashboard</button>
+        <button class="template-chip" onclick="loadTemplate('ecommerce')">E-Commerce</button>
+        <button class="template-chip" onclick="loadTemplate('portfolio')">Portfolio</button>
+        <button class="template-chip" onclick="loadTemplate('blog')">Blog</button>
+        <button class="template-chip" onclick="loadTemplate('nl')">Natural Language</button>
+        <button class="template-chip" onclick="loadTemplate('form')">Form</button>
+    </div>
+
+    <div class="main">
+        <div class="editor-panel">
+            <div class="panel-header">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+                <span style="margin-left: 12px;">📝 Code Editor — Python</span>
+            </div>
+            <textarea id="editor" spellcheck="false">from pyvibe import *
+
+app = App('My Website', description='Website keren pakai PyVibe')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        kontainer(
+            judul("Selamat Datang di PyVibe! 🐍", kelas="pv-text-primary pv-text-center pv-mb-16"),
+            paragraf("Framework Python untuk bikin website yang super gampang.", kelas="pv-text-gray pv-text-center pv-mb-24"),
+            baris(
+                tombol("Mulai Sekarang", kelas="pv-btn pv-btn-primary"),
+                tombol("Lihat Dokumentasi", kelas="pv-btn pv-btn-secondary"),
+                kelas="pv-justify-center pv-gap-16"
+            ),
+            spasi(32),
+            grid(
+                kartu(judul_kartu("🚀 Cepat"), paragraf("Build website dalam hitungan menit.")),
+                kartu(judul_kartu("🎨 Cantik"), paragraf("Desain profesional dengan CSS classes built-in.")),
+                kartu(judul_kartu("🇮🇩 Indonesia"), paragraf("Syntax natural bahasa Indonesia.")),
+                kolom=3, kelas="pv-gap-24"
+            ),
+            kelas="pv-py-64 pv-px-32 pv-max-w-xl pv-mx-auto"
+        )
+    )
+
+# Jalankan!
+app.jalan()
+</textarea>
+        </div>
+
+        <div class="preview-panel">
+            <div class="panel-header">
+                <span>👁️ Live Preview</span>
+            </div>
+            <iframe id="preview" class="preview-frame" sandbox="allow-scripts"></iframe>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <span id="status">🐍 PyVibe Playground v0.1.0</span>
+        <span id="time">Siap beraksi!</span>
+    </div>
+
+    <script>
+        const templates = {
+            hello: `from pyvibe import *
+
+app = App('Hello World')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        kontainer(
+            judul("Halo, Dunia! 🌍", kelas="pv-text-center pv-mt-32"),
+            paragraf("Ini website pertama gue pakai PyVibe.", kelas="pv-text-center pv-text-gray"),
+            tombol("Klik Saya!", kelas="pv-btn pv-btn-primary pv-mt-16"),
+            kelas="pv-py-64 pv-px-32 pv-text-center"
+        )
+    )
+
+app.jalan()`,
+
+            landing: `from pyvibe import *
+
+app = App('PyVibe Landing', description='Framework Python untuk website')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        navbar("PyVibe", items=["Fitur", "Harga", "Dokumentasi"]),
+        kontainer(
+            # Hero
+            judul("Bikin Website\nTanpa Ribet", kelas="pv-text-center pv-text-bold"),
+            paragraf("PyVibe adalah framework Python yang bikin lo bisa bikin website keren pakai bahasa Indonesia.", kelas="pv-text-center pv-text-gray pv-max-w-md pv-mx-auto pv-mb-32"),
+            baris(
+                tombol("🚀 Mulai Gratis", kelas="pv-btn pv-btn-primary pv-btn-lg"),
+                tombol("📖 Baca Docs", kelas="pv-btn pv-btn-outline pv-btn-lg"),
+                kelas="pv-justify-center pv-gap-16"
+            ),
+            spasi(64),
+            # Features
+            judul("Kenapa PyVibe?", kelas="pv-text-center pv-mb-32 pv-text-2xl"),
+            grid(
+                kartu(judul_kartu("🗣️ Bahasa Indonesia"), paragraf("Syntax natural kayak ngobrol. Gak perlu ingat keyword Inggris.")),
+                kartu(judul_kartu("🎨 48+ Components"), paragraf("Card, button, form, table, semuanya udah ready.")),
+                kartu(judul_kartu("📱 Responsive"), paragraf("Auto responsive, gak perlu CSS manual.")),
+                kartu(judul_kartu("⚡ Zero Config"), paragraf("Install, tulis kode, langsung jalan. Gak ada config ribet.")),
+                kartu(judul_kartu("🔒 Secure"), paragraf("CSRF, XSS protection udah built-in.")),
+                kartu(judul_kartu("🔌 Plugin System"), paragraf("Extend framework dengan plugin sesuai kebutuhan.")),
+                kolom=3, kelas="pv-gap-24 pv-max-w-2xl pv-mx-auto"
+            ),
+            kelas="pv-py-64 pv-px-32"
+        ),
+        footer("© 2026 PyVibe. Made with ❤️ in Indonesia.")
+    )
+
+app.jalan()`,
+
+            dashboard: `from pyvibe import *
+
+app = App('Dashboard Admin')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        navbar("Admin Panel", items=["Dashboard", "Users", "Settings"]),
+        kontainer(
+            judul("Dashboard", kelas="pv-mb-24"),
+            # Stats
+            grid(
+                kartu_stat("Total Users", "12,345", "+12%"),
+                kartu_stat("Revenue", "Rp 45M", "+8%"),
+                kartu_stat("Orders", "1,234", "+15%"),
+                kartu_stat("Rating", "4.8/5", "+0.2"),
+                kolom=4, kelas="pv-gap-16 pv-mb-32"
+            ),
+            # Table
+            kartu(
+                judul_kartu("Recent Orders"),
+                tabel(
+                    ["Order ID", "Customer", "Amount", "Status"],
+                    [
+                        ["#001", "Andi", "Rp 250K", "Selesai"],
+                        ["#002", "Budi", "Rp 180K", "Proses"],
+                        ["#003", "Citra", "Rp 320K", "Selesai"],
+                    ]
+                ),
+                kelas="pv-mb-24"
+            ),
+            kelas="pv-p-32"
+        )
+    )
+
+app.jalan()`,
+
+            ecommerce: `from pyvibe import *
+
+app = App('Toko Online')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        navbar("TokoKu", items=["Home", "Produk", "Keranjang"]),
+        kontainer(
+            judul("Produk Terlaris 🔥", kelas="pv-mb-24"),
+            grid(
+                kartu(
+                    gambar("https://placehold.co/300x200/7C3AED/white?text=Laptop", kelas="pv-w-full pv-rounded-lg pv-mb-16"),
+                    judul_kartu("MacBook Pro"),
+                    paragraf("Rp 25.000.000", kelas="pv-text-primary pv-text-bold"),
+                    tombol("Tambah ke Keranjang", kelas="pv-btn pv-btn-primary pv-w-full"),
+                ),
+                kartu(
+                    gambar("https://placehold.co/300x200/06B6D4/white?text=iPhone", kelas="pv-w-full pv-rounded-lg pv-mb-16"),
+                    judul_kartu("iPhone 16 Pro"),
+                    paragraf("Rp 18.000.000", kelas="pv-text-primary pv-text-bold"),
+                    tombol("Tambah ke Keranjang", kelas="pv-btn pv-btn-primary pv-w-full"),
+                ),
+                kartu(
+                    gambar("https://placehold.co/300x200/22C55E/white?text=iPad", kelas="pv-w-full pv-rounded-lg pv-mb-16"),
+                    judul_kartu("iPad Air"),
+                    paragraf("Rp 9.500.000", kelas="pv-text-primary pv-text-bold"),
+                    tombol("Tambah ke Keranjang", kelas="pv-btn pv-btn-primary pv-w-full"),
+                ),
+                kolom=3, kelas="pv-gap-24"
+            ),
+            kelas="pv-p-32"
+        )
+    )
+
+app.jalan()`,
+
+            portfolio: `from pyvibe import *
+
+app = App('Developer Portfolio')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        navbar("Andi Dev", items=["About", "Projects", "Contact"]),
+        kontainer(
+            # Hero
+            baris(
+                kolom(
+                    judul("Halo, Gue Andi 👋", kelas="pv-mb-8"),
+                    subjudul("Full-Stack Developer", kelas="pv-text-primary pv-mb-16"),
+                    paragraf("Gue suka bikin website keren dan bermanfaat. Tech stack favorit: Python, React, PostgreSQL.", kelas="pv-text-gray pv-mb-24"),
+                    baris(
+                        tombol("Lihat Project", kelas="pv-btn pv-btn-primary"),
+                        tombol("Hubungi Gue", kelas="pv-btn pv-btn-outline"),
+                        kelas="pv-gap-12"
+                    ),
+                    kolom=6,
+                ),
+                kolom(
+                    gambar("https://placehold.co/400x400/7C3AED/white?text=ANDI", kelas="pv-rounded-full pv-shadow-lg"),
+                    kolom=6, kelas="pv-text-center"
+                ),
+                kelas="pv-items-center pv-gap-32 pv-py-64 pv-px-32"
+            ),
+            spasi(64),
+            # Projects
+            judul("Project Terbaru", kelas="pv-text-center pv-mb-32"),
+            grid(
+                kartu(
+                    badge("Web App", kelas="pv-badge-primary"),
+                    judul_kartu("E-Commerce Platform"),
+                    paragraf("Platform belanja online full-featured."),
+                ),
+                kartu(
+                    badge("Mobile", kelas="pv-badge-success"),
+                    judul_kartu("Task Manager App"),
+                    paragraf("Aplikasi manajemen tugas produktivitas."),
+                ),
+                kartu(
+                    badge("AI", kelas="pv-badge-info"),
+                    judul_kartu("Chatbot AI"),
+                    paragraf("Chatbot pintar berbasis NLP."),
+                ),
+                kolom=3, kelas="pv-gap-24 pv-max-w-2xl pv-mx-auto pv-mb-64"
+            ),
+            kelas="pv-py-32"
+        ),
+        footer("© 2026 Andi Dev. Built with PyVibe 🐍")
+    )
+
+app.jalan()`,
+
+            blog: `from pyvibe import *
+
+app = App('Blog Developer')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        navbar("DevBlog", items=["Home", "Artikel", "Tentang"]),
+        kontainer(
+            judul("Artikel Terbaru ✍️", kelas="pv-mb-32"),
+            kartu(
+                baris(
+                    kolom(
+                        badge("Tutorial", kelas="pv-badge-primary pv-mb-8"),
+                        judul_kartu("Belajar PyVibe dari Nol"),
+                        paragraf("Tutorial lengkap bikin website pertama pakai PyVibe. Cocok untuk pemula."),
+                        baris(
+                            badge("15 Jan 2026", kelas="pv-badge-gray"),
+                            badge("5 menit baca", kelas="pv-badge-gray"),
+                            kelas="pv-gap-8 pv-mt-16"
+                        ),
+                        kolom=8,
+                    ),
+                    kolom(
+                        gambar("https://placehold.co/400x250/7C3AED/white?text=PyVibe", kelas="pv-rounded-lg"),
+                        kolom=4,
+                    ),
+                    kelas="pv-items-center pv-gap-24"
+                ),
+                kelas="pv-mb-24"
+            ),
+            kartu(
+                baris(
+                    kolom(
+                        badge("Tips", kelas="pv-badge-success pv-mb-8"),
+                        judul_kartu("10 Tips CSS yang Harus Diketahui"),
+                        paragraf("Tips dan trik CSS untuk bikin website lebih keren."),
+                        kelas="pv-w-full",
+                    ),
+                    kelas="pv-items-start"
+                ),
+                kelas="pv-mb-24"
+            ),
+            kelas="pv-p-32 pv-max-w-xl pv-mx-auto"
+        )
+    )
+
+app.jalan()`,
+
+            nl: `from pyvibe import *
+from pyvibe.nl import *
+
+app = App('Natural Language Demo')
+
+@app.route("/")
+def beranda():
+    # Pakai syntax natural bahasa Indonesia!
+    return tampil(
+        *nl(
+            'tampilin judul "Bikin Website Pakai Bahasa Indonesia" di tengah',
+            'tampilin paragraf "Gak perlu ingat keyword Inggris. Tulis aja kayak ngobrol."',
+            'tampilin spasi',
+            'tampilin tombol "Mulai Sekarang" warna ungu',
+            'tampilin spasi',
+            'tampilin kartu',
+            '  tampilin judul "Fitur Utama"',
+            '  tampilin paragraf "48+ components, responsive, dan zero config."',
+        )
+    )
+
+app.jalan()`,
+
+            form: `from pyvibe import *
+
+app = App('Form Demo')
+
+@app.route("/")
+def beranda():
+    return tampil(
+        kontainer(
+            judul("Form Pendaftaran", kelas="pv-text-center pv-mb-32"),
+            kartu(
+                form(
+                    form_group("Nama Lengkap", input_teks("Andi", placeholder="Masukkan nama")),
+                    form_group("Email", input_email("andi@email.com")),
+                    form_group("Pesan", textarea("Tulis pesan lo di sini...")),
+                    baris(
+                        tombol("Kirim", kelas="pv-btn pv-btn-primary"),
+                        tombol("Reset", kelas="pv-btn pv-btn-secondary"),
+                        kelas="pv-gap-12 pv-mt-16"
+                    ),
+                    kelas="pv-p-24"
+                ),
+                kelas="pv-max-w-md pv-mx-auto"
+            ),
+            kelas="pv-py-64 pv-px-32"
+        )
+    )
+
+app.jalan()`
+        };
+
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const status = document.getElementById('status');
+        const timeEl = document.getElementById('time');
+
+        let defaultCode = editor.value;
+
+        function runCode() {
+            const startTime = performance.now();
+            status.textContent = '⏳ Generating HTML...';
+
+            try {
+                const code = editor.value;
+                const html = generateHTML(code);
+
+                // Write HTML to iframe
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                preview.src = url;
+
+                const elapsed = (performance.now() - startTime).toFixed(0);
+                status.textContent = '✅ Generated successfully';
+                timeEl.textContent = `Done in ${elapsed}ms`;
+            } catch (err) {
+                status.textContent = `❌ Error: ${err.message}`;
+                timeEl.textContent = 'Check your code';
+            }
+        }
+
+        function generateHTML(code) {
+            // Extract components from Python code
+            let bodyContent = '';
+
+            // Parse common patterns
+            const parseComponent = (code) => {
+                // Simple parser for PyVibe components
+                let html = '';
+
+                // Title patterns
+                const titleMatch = code.match(/judul\(["'](.+?)["']/g);
+                if (titleMatch) {
+                    titleMatch.forEach(m => {
+                        const text = m.match(/["'](.+?)["']/)[1];
+                        html += `<h1 style="font-size:2.5rem;font-weight:700;margin:16px 0;text-align:center;">${text}</h1>`;
+                    });
+                }
+
+                // Paragraph patterns
+                const paraMatch = code.match(/paragraf\(["'](.+?)["']/g);
+                if (paraMatch) {
+                    paraMatch.forEach(m => {
+                        const text = m.match(/["'](.+?)["']/)[1];
+                        html += `<p style="font-size:1rem;color:#6B7280;margin:8px 0;text-align:center;">${text}</p>`;
+                    });
+                }
+
+                // Button patterns
+                const btnMatch = code.match(/tombol\(["'](.+?)["']/g);
+                if (btnMatch) {
+                    html += '<div style="display:flex;gap:12px;justify-content:center;margin:16px 0;flex-wrap:wrap;">';
+                    btnMatch.forEach(m => {
+                        const text = m.match(/["'](.+?)["']/)[1];
+                        const isPrimary = m.includes('primary') || m.includes('purple');
+                        html += `<button style="padding:10px 24px;border-radius:8px;font-weight:500;cursor:pointer;border:none;background:${isPrimary ? '#7C3AED' : '#F3F4F6'};color:${isPrimary ? 'white' : '#374151'};font-size:0.875rem;">${text}</button>`;
+                    });
+                    html += '</div>';
+                }
+
+                // Badge patterns
+                const badgeMatch = code.match(/badge\(["'](.+?)["']/g);
+                if (badgeMatch) {
+                    html += '<div style="display:flex;gap:8px;margin:8px 0;justify-content:center;">';
+                    badgeMatch.forEach(m => {
+                        const text = m.match(/["'](.+?)["']/)[1];
+                        html += `<span style="padding:4px 10px;border-radius:9999px;font-size:0.75rem;font-weight:600;background:#EDE9FE;color:#7C3AED;">${text}</span>`;
+                    });
+                    html += '</div>';
+                }
+
+                // Image patterns
+                const imgMatch = code.match(/gambar\(["'](.+?)["']/g);
+                if (imgMatch) {
+                    imgMatch.forEach(m => {
+                        const src = m.match(/["'](.+?)["']/)[1];
+                        html += `<img src="${src}" style="width:100%;border-radius:8px;margin:16px 0;" />`;
+                    });
+                }
+
+                return html;
+            };
+
+            bodyContent = parseComponent(code);
+
+            // Build a styled preview page
+            return `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyVibe Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #111827;
+            background: white;
+            padding: 40px 24px;
+        }
+        img { max-width: 100%; }
+    </style>
+</head>
+<body>
+    ${bodyContent || '<div style="text-align:center;padding:60px;color:#9CA3AF;"><h2>🐍 Klik ▶ Run untuk generate preview</h2><p style="margin-top:8px;">Tulis kode PyVibe di editor sebelah kiri</p></div>'}
+</body>
+</html>`;
+        }
+
+        function loadTemplate(name) {
+            if (templates[name]) {
+                editor.value = templates[name];
+                runCode();
+            }
+        }
+
+        function resetCode() {
+            editor.value = defaultCode;
+            runCode();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(editor.value).then(() => {
+                status.textContent = '📋 Code copied to clipboard!';
+            });
+        }
+
+        // Tab support in editor
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+            // Ctrl+Enter to run
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                runCode();
+            }
+        });
+
+        // Auto-run on load
+        runCode();
+    </script>
+</body>
+</html>
