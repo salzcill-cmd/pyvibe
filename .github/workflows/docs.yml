@@ -1,0 +1,156 @@
+# 📚 PyVibe Documentation
+# Deploys documentation to GitHub Pages
+
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.9'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # ==================== BUILD DOCS ====================
+  build:
+    name: 🏗️ Build Documentation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      
+      - name: 📚 Build documentation
+        run: |
+          echo "📚 Building documentation..."
+          
+          # Create docs output directory
+          mkdir -p _site/docs
+          
+          # Copy markdown files
+          cp docs/*.md _site/docs/
+          
+          # Copy README
+          cp README.md _site/
+          
+          # Create index.html from docs/index.md
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="id">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>🐍 PyVibe Documentation</title>
+              <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1f2937; background: #f9fafb; }
+                  .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+                  h1 { font-size: 2.5rem; margin-bottom: 1rem; color: #7c3aed; }
+                  h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: #374151; }
+                  p { margin-bottom: 1rem; color: #4b5563; }
+                  a { color: #7c3aed; text-decoration: none; }
+                  a:hover { text-decoration: underline; }
+                  .card { background: white; border-radius: 12px; padding: 24px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                  .btn { display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; margin: 8px 0; }
+                  .btn:hover { background: #6d28d9; text-decoration: none; }
+                  code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+                  pre { background: #1f2937; color: #e5e7eb; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 16px 0; }
+                  pre code { background: none; color: inherit; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🐍 PyVibe Documentation</h1>
+                  <p><strong>Build frontend websites in Python as easy as chatting.</strong></p>
+                  <p><em>"Gak perlu ribet, yang penting gacor."</em></p>
+                  
+                  <div class="card">
+                      <h2>🚀 Quick Start</h2>
+                      <pre><code>pip install pyvibe
+pyvibe create my-website
+cd my-website
+python app.py</code></pre>
+                      <a href="docs/getting-started.md" class="btn">Get Started →</a>
+                  </div>
+                  
+                  <div class="card">
+                      <h2>📚 Documentation</h2>
+                      <ul>
+                          <li><a href="docs/getting-started.md">Getting Started</a> - Installation & setup</li>
+                          <li><a href="docs/components.md">Components</a> - All 58 components</li>
+                          <li><a href="docs/syntax.md">Natural Language</a> - Write code like chatting</li>
+                          <li><a href="docs/styling.md">Styling</a> - Design system & themes</li>
+                          <li><a href="docs/routing.md">Routing</a> - Multi-page navigation</li>
+                          <li><a href="docs/state.md">State</a> - Reactive state management</li>
+                          <li><a href="docs/security.md">Security</a> - CSRF, XSS, Rate limiting</li>
+                          <li><a href="docs/deployment.md">Deployment</a> - Deploy to production</li>
+                          <li><a href="docs/faq.md">FAQ</a> - Troubleshooting</li>
+                      </ul>
+                  </div>
+                  
+                  <div class="card">
+                      <h2>🔗 Links</h2>
+                      <ul>
+                          <li><a href="https://github.com/salzcill-cmd/pyvibe">GitHub</a></li>
+                          <li><a href="https://pypi.org/project/pyvibe/">PyPI</a></li>
+                          <li><a href="https://discord.gg/pyvibe">Discord</a></li>
+                      </ul>
+                  </div>
+                  
+                  <p style="margin-top: 2rem; color: #9ca3af; font-size: 0.875rem;">
+                      Made with ❤️ in Indonesia 🇮🇩
+                  </p>
+              </div>
+          </body>
+          </html>
+          EOF
+      
+      - name: 📊 Documentation stats
+        run: |
+          echo "📊 Documentation Statistics:"
+          echo "  Markdown files: $(find docs/ -name '*.md' | wc -l)"
+          echo "  Total size: $(du -sh docs/ | cut -f1)"
+          echo "  Total lines: $(cat docs/*.md | wc -l)"
+      
+      - name: 📤 Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: '_site'
+
+  # ==================== DEPLOY ====================
+  deploy:
+    name: 🚀 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [build]
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

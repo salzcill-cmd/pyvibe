@@ -1,0 +1,181 @@
+# 🐍 PyVibe CI Pipeline
+# Runs on every push and PR to main
+
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # ==================== LINT ====================
+  lint:
+    name: 🔍 Lint & Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black isort mypy
+          pip install -e .
+      
+      - name: 🔍 Run Flake8 (linting)
+        run: |
+          # Stop the build if there are Python syntax errors
+          flake8 pyvibe/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Treat all errors as warnings
+          flake8 pyvibe/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
+      - name: 🎨 Check Black formatting
+        run: |
+          black --check --diff pyvibe/
+      
+      - name: 📋 Check import ordering
+        run: |
+          isort --check-only --diff pyvibe/
+
+  # ==================== TEST ====================
+  test:
+    name: 🧪 Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install -e .
+      
+      - name: 🧪 Run tests
+        run: |
+          pytest tests/ -v --cov=pyvibe --cov-report=xml --cov-report=html
+      
+      - name: 📊 Upload coverage
+        if: matrix.python-version == '3.9'
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  # ==================== BUILD ====================
+  build:
+    name: 📦 Build Package
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+      
+      - name: 🏗️ Build package
+        run: |
+          python -m build
+      
+      - name: 📋 Check package
+        run: |
+          twine check dist/*
+      
+      - name: 📤 Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyvibe-package
+          path: dist/
+          retention-days: 30
+
+  # ==================== SECURITY ====================
+  security:
+    name: 🔒 Security Check
+    runs-on: ubuntu-latest
+    needs: [lint]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety bandit
+      
+      - name: 🔒 Run Bandit (security linting)
+        run: |
+          bandit -r pyvibe/ -f json -o bandit-report.json || true
+          bandit -r pyvibe/ --severity-level medium || true
+      
+      - name: 🛡️ Check dependencies for vulnerabilities
+        run: |
+          pip freeze > requirements.txt
+          safety check -r requirements.txt || true
+
+  # ==================== DOCS ====================
+  docs:
+    name: 📚 Validate Docs
+    runs-on: ubuntu-latest
+    needs: [lint]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📋 Check documentation files exist
+        run: |
+          echo "📚 Checking documentation..."
+          test -f docs/index.md
+          test -f docs/getting-started.md
+          test -f docs/components.md
+          test -f docs/syntax.md
+          test -f docs/styling.md
+          test -f docs/routing.md
+          test -f docs/state.md
+          test -f docs/security.md
+          test -f docs/deployment.md
+          test -f docs/faq.md
+          echo "✅ All documentation files present!"
+      
+      - name: 📊 Count documentation
+        run: |
+          echo "📊 Documentation Stats:"
+          echo "  Files: $(find docs/ -name '*.md' | wc -l)"
+          echo "  Total size: $(du -sh docs/ | cut -f1)"
+          echo "  Total lines: $(cat docs/*.md | wc -l)"

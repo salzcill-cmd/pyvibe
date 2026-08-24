@@ -1,0 +1,187 @@
+# 🔍 PyVibe Code Quality
+# Runs on schedule to check code quality and dependencies
+
+name: Code Quality
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Every Monday at midnight
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # ==================== DEPENDENCY CHECK ====================
+  dependencies:
+    name: 📦 Check Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-outdated safety
+      
+      - name: 🔍 Check for outdated packages
+        run: |
+          echo "📦 Checking outdated packages..."
+          pip freeze | pip-outdated -r - || true
+      
+      - name: 🛡️ Check for security vulnerabilities
+        run: |
+          echo "🛡️ Checking security vulnerabilities..."
+          pip freeze > requirements.txt
+          safety check -r requirements.txt || true
+
+  # ==================== CODE ANALYSIS ====================
+  analysis:
+    name: 🔍 Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install analysis tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint pydocstyle
+      
+      - name: 🔍 Run Pylint
+        run: |
+          echo "🔍 Running Pylint..."
+          pylint pyvibe/ --disable=all --enable=E || true
+      
+      - name: 📋 Check docstrings
+        run: |
+          echo "📋 Checking docstrings..."
+          pydocstyle pyvibe/ || true
+
+  # ==================== METRICS ====================
+  metrics:
+    name: 📊 Code Metrics
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📊 Calculate metrics
+        run: |
+          echo "📊 PyVibe Code Metrics"
+          echo "=========================================="
+          echo ""
+          
+          # Count lines of code
+          echo "📝 Lines of Code:"
+          find pyvibe/ -name "*.py" -exec cat {} + | wc -l
+          echo ""
+          
+          # Count files
+          echo "📁 Python Files:"
+          find pyvibe/ -name "*.py" | wc -l
+          echo ""
+          
+          # Count functions
+          echo "🔧 Functions:"
+          grep -r "def " pyvibe/ | wc -l
+          echo ""
+          
+          # Count classes
+          echo "📦 Classes:"
+          grep -r "class " pyvibe/ | wc -l
+          echo ""
+          
+          # Count components
+          echo "🧩 Components:"
+          grep -r "def [a-z_]*(" pyvibe/components/ | wc -l
+          echo ""
+          
+          # Documentation size
+          echo "📚 Documentation:"
+          echo "  Files: $(find docs/ -name '*.md' | wc -l)"
+          echo "  Size: $(du -sh docs/ | cut -f1)"
+          echo "  Lines: $(cat docs/*.md | wc -l)"
+          echo ""
+          
+          # Examples
+          echo "💡 Examples:"
+          echo "  Files: $(find examples/ -name '*.py' | wc -l)"
+          echo ""
+          
+          echo "=========================================="
+
+  # ==================== BENCHMARK ====================
+  benchmark:
+    name: ⚡ Performance Benchmark
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      
+      - name: ⚡ Run benchmark
+        run: |
+          echo "⚡ Running performance benchmark..."
+          python3 -c "
+          import time
+          from pyvibe import *
+          
+          # Benchmark component creation
+          start = time.time()
+          for i in range(1000):
+              judul('Test')
+              paragraf('Text')
+              tombol('Click')
+              kartu(paragraf('Card'))
+              grid(kartu(paragraf('1')), kartu(paragraf('2')), kartu(paragraf('3')))
+          end = time.time()
+          
+          print(f'Component creation: {end-start:.3f}s (3000 components)')
+          print(f'Average: {(end-start)/3000*1000:.3f}ms per component')
+          print()
+          
+          # Benchmark rendering
+          start = time.time()
+          app = App('Benchmark')
+          for i in range(100):
+              app.tampil(
+                  judul(f'Title {i}'),
+                  paragraf(f'Text {i}'),
+                  tombol(f'Button {i}'),
+                  kartu(paragraf(f'Card {i}')),
+              )
+          end = time.time()
+          
+          print(f'Rendering: {end-start:.3f}s (100 pages)')
+          print(f'Average: {(end-start)/100*1000:.1f}ms per page')
+          "
