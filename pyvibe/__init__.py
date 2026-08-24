@@ -187,6 +187,13 @@ from pyvibe.performance import (
     Timer, get_memory_usage, CacheStats,
 )
 
+# Easy (Simple API)
+from pyvibe.easy import (
+    halaman, ringkas, halaman_sederhana, landing, dashboard,
+    halo, selamat_datang, portofolio, toko,
+    judul_teks, par, btn, img, link, kartu_sederhana, form_sederhana, tabel_sederhana,
+)
+
 __all__ = [
     # Core
     "App", "State", "Component", "Teks", "Router", "tampil",
@@ -308,4 +315,9 @@ __all__ = [
     # Performance
     "monitor", "timer", "profile", "benchmark", "get_timer",
     "Timer", "get_memory_usage", "CacheStats",
+    
+    # Easy
+    "halaman", "ringkas", "halaman_sederhana", "landing", "dashboard",
+    "halo", "selamat_datang", "portofolio", "toko",
+    "judul_teks", "par", "btn", "img", "link", "kartu_sederhana", "form_sederhana", "tabel_sederhana",
 ]

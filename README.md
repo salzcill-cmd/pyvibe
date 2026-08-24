@@ -100,6 +100,110 @@ app.jalan()
 
 ---
 
+## 🤩 Easy API — Sesimpel Ngobrol
+
+> *"Gak perlu ribet, tinggal bilang maunya apa."*
+
+### Hello World — 1 Baris!
+
+```python
+from pyvibe.easy import *
+
+halo("Developer")
+# Output: <h1>Halo, Developer!</h1>
+```
+
+### One-Liner Templates
+
+```python
+from pyvibe.easy import *
+
+# 🚀 Landing Page — satu fungsi langsung jadi
+landing(
+    judul="Toko Gacor",
+    subjudul="Belanja gampang, harga mantap!",
+    fitur=["Cepat", "Murah", "Aman"],
+)
+
+# 📊 Dashboard — satu fungsi langsung jadi
+dashboard(
+    judul="Admin Panel",
+    stats=[
+        {"judul": "Users", "nilai": "1,234", "perubahan": "+12%"},
+        {"judul": "Revenue", "nilai": "Rp 45M", "perubahan": "+8%"},
+    ],
+    data=[{"Action": "User Signup", "Time": "2 min ago"}],
+)
+
+# 👋 Portofolio — satu fungsi langsung jadi
+portofolio("Andi", skill=["Python", "PyVibe", "React"])
+
+# 🛍️ Toko — satu fungsi langsung jadi
+toko("Toko Gacor", produk=[
+    {"nama": "Nike Air", "harga": "Rp 1.2M"},
+    {"nama": "Adidas Run", "harga": "Rp 900K"},
+])
+
+# 🎉 Selamat Datang
+selamat_datang("Developer")
+```
+
+### Super Simple Components
+
+```python
+from pyvibe.easy import *
+
+# Render komponen langsung jadi HTML
+html = ringkas(
+    judul("Hello"),
+    paragraf("World"),
+    tombol("Click"),
+)
+
+# Form sederhana dari list nama field
+html = form_sederhana("Nama", "Email", "Pesan", submit_text="Kirim")
+
+# Tabel sederhana dari list of dict
+html = tabel_sederhana([
+    {"Nama": "Andi", "Email": "andi@test.com"},
+    {"Nama": "Budi", "Email": "budi@test.com"},
+])
+
+# Halaman sederhana
+html = halaman_sederhana("Selamat Datang!", "Ini website gue.")
+```
+
+### Smart Shortcuts
+
+```python
+from pyvibe.easy import *
+
+# Pendek-pendek aja
+e = judul_teks("Hello")         # judul
+p = par("Ini paragraf")          # paragraf
+t = tombol("Submit", "biru")    # tombol
+i = gambar("photo.jpg")          # gambar
+l = tautilan("Click", "/home")  # tautan
+
+# Layout pendek
+grid_items = grid(kartu_sederhana("Card 1"), kartu_sederhana("Card 2"), kolom=2)
+row_items = baris(kolom(6, par("Kiri")), kolom(6, par("Kanan")))
+```
+
+### Easy API vs Regular API
+
+| Task | Easy API | Regular API |
+|------|----------|-------------|
+| Hello World | `halo("Dunia")` | `App("X"); app.tampil(judul("Halo"))` |
+| Landing Page | `landing(judul="X", fitur=[...])` | 20+ baris kode |
+| Form | `form_sederhana("Nama", "Email")` | 10+ baris kode |
+| Tabel | `tabel_sederhana([{...}])` | 5+ baris kode |
+| Dashboard | `dashboard(judul="X", stats=[...])` | 30+ baris kode |
+| Portofolio | `portofolio("Andi", skill=[...])` | 15+ baris kode |
+| Toko | `toko("Toko A", produk=[...])` | 20+ baris kode |
+
+---
+
 ## 🧩 Components (82+)
 
 ### Basic Components (17)
