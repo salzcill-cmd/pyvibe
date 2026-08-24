@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyvibe"
+version = "0.1.0"
+description = "🐍 Build frontend websites in Python as easy as chatting"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "PyVibe Team", email = "hello@pyvibe.dev"},
+]
+keywords = ["python", "frontend", "web", "framework", "indonesia"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Homepage = "https://pyvibe.dev"
+Documentation = "https://pyvibe.dev/docs"
+Repository = "https://github.com/pyvibe/pyvibe"
+Issues = "https://github.com/pyvibe/pyvibe/issues"
+
+[project.scripts]
+pyvibe = "pyvibe.cli.main:main"
+
+[tool.setuptools.packages.find]
+include = ["pyvibe*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
