@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pyvibe"
+name = "pyvibe-id"
 version = "0.1.0"
 description = "🐍 Build frontend websites in Python as easy as chatting"
 readme = "README.md"
@@ -29,10 +29,10 @@ requires-python = ">=3.9"
 dependencies = []
 
 [project.urls]
-Homepage = "https://pyvibe.dev"
-Documentation = "https://pyvibe.dev/docs"
-Repository = "https://github.com/pyvibe/pyvibe"
-Issues = "https://github.com/pyvibe/pyvibe/issues"
+Homepage = "https://github.com/salzcill-cmd/pyvibe"
+Documentation = "https://github.com/salzcill-cmd/pyvibe/tree/main/docs"
+Repository = "https://github.com/salzcill-cmd/pyvibe"
+Issues = "https://github.com/salzcill-cmd/pyvibe/issues"
 
 [project.scripts]
 pyvibe = "pyvibe.cli.main:main"
