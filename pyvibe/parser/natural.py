@@ -274,6 +274,9 @@ STOPWORDS = {
     "tetapi", "namun", "tapi",
     "walaupun", "meskipun", "meski",
     "serta", "juga", "pula",
+    
+    # Additional stopwords for better parsing
+    "ini", "ya", "tidak", "bisa", "sih", "aja", "taunya", "yg",
 }
 
 
@@ -388,6 +391,13 @@ class NaturalLanguageParser:
             if keyword in line_lower:
                 return COMPONENT_KEYWORDS[keyword]
 
+        # Try to detect from first word
+        words = line_lower.split()
+        if words:
+            first_word = words[0]
+            if first_word in COMPONENT_KEYWORDS:
+                return COMPONENT_KEYWORDS[first_word]
+
         return None
 
     def _extract_content(self, line: str) -> str:
@@ -454,6 +464,12 @@ class NaturalLanguageParser:
             (r'gap\s+(\S+)', 'gap'),
             (r'isi\s+["\']([^"\']+)["\']', 'content'),
             (r'teks\s+["\']([^"\']+)["\']', 'text'),
+            (r'on_change\s*=\s*["\']([^"\']+)["\']', 'on_change'),
+            (r'on_hover\s*=\s*["\']([^"\']+)["\']', 'on_hover'),
+            (r'on_klik\s*=\s*["\']([^"\']+)["\']', 'on_klik'),
+            (r'aksi\s*=\s*["\']([^"\']+)["\']', 'aksi'),
+            (r'aksi\s*\(\s*([^)]+)\s*\)', 'aksi_expr'),
+            (r'konfirmasi\s*\(\s*([^)]+)\s*\)', 'konfirmasi'),
         ]
 
         for pattern, prop_name in patterns:
@@ -475,6 +491,9 @@ class NaturalLanguageParser:
             args = f'"{content}"' if content else ""
             if "warna" in props:
                 args += f', warna="{props["warna"]}"'
+            # Add on_klik if present
+            if "on_klik" in props:
+                args += f', on_klik={props["on_klik"]}'
             call = f"tombol({args})"
         elif component == "judul":
             args = f'"{content}"' if content else ""
@@ -616,6 +635,14 @@ class NaturalLanguageParser:
                 style_methods.append('.bg("gradient-ungu")')
             elif style == "lebar_penuh":
                 style_methods.append('.lebar("100%")')
+
+        # Apply property methods from props
+        if "on_klik" in props:
+            style_methods.append(f'.on_klik({props["on_klik"]})')
+        if "on_change" in props:
+            style_methods.append(f'.on_change({props["on_change"]})')
+        if "aksi" in props:
+            style_methods.append(f'.aksi({props["aksi"]})')
 
         # Build final expression
         result = call

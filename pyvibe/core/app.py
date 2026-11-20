@@ -16,6 +16,7 @@ Usage:
 from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional, Union
 import json
+import re
 import hashlib
 import os
 from dataclasses import dataclass, field
@@ -304,10 +305,62 @@ Ready! Buka browser dan mulai vibing~ 🚀
 
     # ==================== Export ====================
 
-    def export(self, output_dir: Optional[str] = None):
-        """Export ke static HTML files."""
+    def export(self, output_dir: Optional[str] = None, optimize: bool = False, analyze: bool = False):
+        """Export ke static HTML files.
+
+        Args:
+            output_dir: Output directory (defaults to config output_dir)
+            optimize: Enable production optimization (minify HTML, CSS, etc.)
+            analyze: Generate bundle analysis report
+        """
         output_dir = output_dir or self.config["output_dir"]
         print(f"📦 Exporting ke {output_dir}...")
+
+        if optimize:
+            from pyvibe.deploy import Optimization
+            print("⚡ Optimizing for production...")
+            # Read and optimize exported files
+            import os
+            for root, dirs, files in os.walk(output_dir):
+                for file in files:
+                    if file.endswith('.html'):
+                        file_path = os.path.join(root, file)
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        optimized = Optimization.minify_html(content, remove_whitespace=True)
+                        with open(file_path, 'w', encoding='utf-8') as f:
+                            f.write(optimized)
+                        print(f"  📄 Optimized: {os.path.relpath(file_path, output_dir)}")
+
+                        # Also minify inline CSS and JS if present
+                        if '<style' in optimized:
+                            inline_css = re.search(r'<style[^>]*>(.*?)</style>', optimized, flags=re.DOTALL)
+                            if inline_css:
+                                optimized = re.sub(
+                                    r'<style[^>]*>(.*?)</style>',
+                                    f'<style>{Optimization.minify_css(inline_css.group(1))}</style>',
+                                    optimized,
+                                    flags=re.DOTALL
+                                )
+                                with open(file_path, 'w', encoding='utf-8') as f:
+                                    f.write(optimized)
+
+        if analyze:
+            print("📊 Generating bundle analysis...")
+            import os
+            for root, dirs, files in os.walk(output_dir):
+                for file in files:
+                    if file.endswith('.html'):
+                        file_path = os.path.join(root, file)
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        analysis = Optimization.analyze_bundle(content)
+                        # Write analysis report alongside the HTML
+                        report_path = file_path.replace('.html', '.analysis.json')
+                        with open(report_path, 'w', encoding='utf-8') as f:
+                            json.dump(analysis, f, indent=2)
+                        print(f"  📊 Analysis: {os.path.relpath(report_path)}")
+
         self.renderer.build_static(output_dir)
         print(f"✅ Export selesai! Files ada di {output_dir}/")
         return output_dir

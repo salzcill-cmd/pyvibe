@@ -46,6 +46,9 @@ class ThemeColors:
     gray_700: str = "#374151"
     gray_800: str = "#1F2937"
     gray_900: str = "#111827"
+    accent: str = "#F59E0B"
+    background: str = "#FFFFFF"
+    foreground: str = "#000000"
 
     def to_css_variables(self) -> str:
         """Generate CSS variables from theme colors."""
@@ -77,7 +80,7 @@ class ThemeColors:
 """
 
 
-# Predefined themes
+# Predefined themes - v1.3.0 with 25 themes
 THEMES: Dict[str, ThemeColors] = {
     "default": ThemeColors(),
     "light": ThemeColors(
@@ -150,6 +153,100 @@ THEMES: Dict[str, ThemeColors] = {
         danger="#FB7185",
         warning="#FACC15",
     ),
+    "forest": ThemeColors(
+        primary="#059669",
+        secondary="#0D9488",
+        accent="#F59E0B",
+    ),
+    "sunrise": ThemeColors(
+        primary="#F97316",
+        secondary="#F59E0B",
+        accent="#EC4899",
+    ),
+    "lavender": ThemeColors(
+        primary="#8B5CF6",
+        secondary="#06B6D4",
+        accent="#EC4899",
+    ),
+    "cyber": ThemeColors(
+        primary="#F87171",
+        secondary="#06B6D4",
+        accent="#10B981",
+    ),
+    "pastel2": ThemeColors(
+        primary="#F472B6",
+        secondary="#67E8F9",
+        success="#86EFAC",
+        danger="#FCA5A5",
+        warning="#FDE68A",
+    ),
+    # v1.2.0 themes
+    "dracula": ThemeColors(
+        primary="#FF79C6",
+        secondary="#F8F8F2",
+        accent="#FF5555",
+    ),
+    "matrix": ThemeColors(
+        primary="#00FF00",
+        secondary="#00FF00",
+    ),
+    "synthwave": ThemeColors(
+        primary="#FF00FF",
+        secondary="#FF007F",
+    ),
+    "pastel_light": ThemeColors(
+        primary="#FDF2F8",
+        secondary="#FAE8F5",
+    ),
+    "high_contrast": ThemeColors(
+        primary="#000000",
+        secondary="#FFFFFF",
+    ),
+    # v1.3.0 NEW themes (using only ThemeColors fields)
+    "aqua": ThemeColors(
+        primary="#06B6D4",
+        secondary="#0891b2",
+    ),
+    "rose": ThemeColors(
+        primary="#F87171",
+        secondary="#EC4899",
+    ),
+    "emerald": ThemeColors(
+        primary="#10B981",
+        secondary="#34D399",
+    ),
+    "sulfur": ThemeColors(
+        primary="#F59E0B",
+        secondary="#FBBF24",
+    ),
+    "sky": ThemeColors(
+        primary="#0891b2",
+        secondary="#67E8F9",
+    ),
+    "purple": ThemeColors(
+        primary="#8B5CF6",
+        secondary="#A78BFA",
+    ),
+    "orange": ThemeColors(
+        primary="#F97316",
+        secondary="#FB923C",
+    ),
+    "lime": ThemeColors(
+        primary="#84CC16",
+        secondary="#A3E635",
+    ),
+    "violet": ThemeColors(
+        primary="#A855F7",
+        secondary="#C4B5FD",
+    ),
+    "teal": ThemeColors(
+        primary="#14B8A6",
+        secondary="#2DD4BF",
+    ),
+    "brown": ThemeColors(
+        primary="#A16207",
+        secondary="#D97706",
+    ),
 }
 
 
@@ -202,6 +299,7 @@ class Theme:
 }}
 """
 
+
     @classmethod
     def list_themes(cls) -> List[str]:
         """List available themes."""
@@ -244,6 +342,21 @@ class Animation:
         "jello": "pvJello 0.8s ease-in-out",
         "swing": "pvSwing 0.8s ease-in-out",
         "typewriter": "pvTypewriter 2s steps(40) forwards",
+        # v1.3.0 NEW animations
+        "fade_in_up": "pvFadeInUp 0.5s ease-out",
+        "fade_in_down": "pvFadeInDown 0.5s ease-out",
+        "fade_in_left": "pvFadeInLeft 0.5s ease-out",
+        "fade_in_right": "pvFadeInRight 0.5s ease-out",
+        "bounce_in": "pvBounceIn 0.5s ease-out",
+        "bounce_out": "pvBounceOut 0.5s ease-out",
+        "light_speed_in": "pvLightSpeedIn 0.4s ease-out",
+        "light_speed_out": "pvLightSpeedOut 0.4s ease-out",
+        "rotate_in": "pvRotateIn 0.5s ease-out",
+        "rotate_in_down": "pvRotateInDown 0.5s ease-out",
+        "roll_out": "pvRollOut 0.5s ease-out",
+        "zoom_out": "pvZoomOut 0.3s ease-out",
+        "flip_in_y": "pvFlipInY 0.5s ease-out",
+        "flip_out_y": "pvFlipOutY 0.5s ease-out",
     }
 
     @classmethod
@@ -307,6 +420,7 @@ class Responsive:
 }}
 """
 
+
     @classmethod
     def mobile_only(cls, css: str) -> str:
         """CSS for mobile only."""
@@ -316,10 +430,12 @@ class Responsive:
 }}
 """
 
+
     @classmethod
     def tablet_and_up(cls, css: str) -> str:
         """CSS for tablet and up."""
         return cls.media_query("tablet", css)
+
 
     @classmethod
     def desktop_and_up(cls, css: str) -> str:
@@ -428,4 +544,312 @@ def flex(comp, direction: str = "row", justify: str = "flex-start", align: str =
     comp.style.justify_content = justify
     comp.style.align_items = align
     comp.style.gap = gap
+    return comp
+
+
+# Enhanced style helpers v1.2.0 & v1.3.0
+def glass(comp, opacity: float = 0.1):
+    """Add glassmorphism effect."""
+    comp.style.background = f"rgba(255, 255, 255, {opacity})"
+    comp.style.backdrop_filter = "blur(10px)"
+    comp.style.border = "1px solid rgba(255, 255, 255, 0.2)"
+    return comp
+
+
+def dark_glass(comp, opacity: float = 0.3):
+    """Add dark glassmorphism effect."""
+    comp.style.background = f"rgba(0, 0, 0, {opacity})"
+    comp.style.backdrop_filter = "blur(10px)"
+    comp.style.border = "1px solid rgba(255, 255, 255, 0.1)"
+    comp.style.color = "white"
+    return comp
+
+
+def neon(comp, color: str = "#7C3AED"):
+    """Add neon glow effect."""
+    comp.style.text_shadow = f"0 0 10px {color}, 0 0 40px {color}"
+    return comp
+
+
+def glow(comp, color: str = "#7C3AED", radius: str = "20px"):
+    """Add glow effect."""
+    comp.style.box_shadow = f"0 0 {radius} {color}40"
+    return comp
+
+
+def pulse(comp):
+    """Add pulse animation."""
+    comp.style.animation = "pv-pulse 2s infinite"
+    return comp
+
+
+def float_(comp):
+    """Add floating animation."""
+    comp.style.animation = "pv-float 3s ease-in-out infinite"
+    return comp
+
+
+def skeleton(comp, width: str = "100%", height: str = "20px"):
+    """Add skeleton loading effect."""
+    comp.style.background = "linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)"
+    comp.style.background_size = "200% 100%"
+    comp.style.animation = "pv-skeleton 1.5s infinite"
+    comp.style.border_radius = "4px"
+    comp.style.width = width
+    comp.style.height = height
+    return comp
+
+
+def typing_cursor(comp):
+    """Add typing cursor effect."""
+    comp.style.border_right = "2px solid currentColor"
+    comp.style.animation = "pv-blink 1s step-end infinite"
+    return comp
+
+
+def shake(comp):
+    """Add shake animation."""
+    comp.style.animation = "pv-shake 0.5s ease-in-out"
+    return comp
+
+
+def marquee(comp, direction: str = "left", speed: str = "20s"):
+    """Add marquee/scrolling effect."""
+    comp.style.overflow = "hidden"
+    comp.style.white_space = "nowrap"
+    comp.style.animation = f"pv-marquee {speed} linear infinite"
+    return comp
+
+
+def zoom_in(comp):
+    """Add zoom in animation."""
+    comp.style.animation = "pvZoomIn 0.3s ease-out"
+    return comp
+
+
+def zoom_out(comp):
+    """Add zoom out animation."""
+    comp.style.animation = "pvZoomOut 0.3s ease-out"
+    return comp
+
+
+# v1.2.0 NEW style helpers
+def marble(comp, color: str = "#7C3AED"):
+    """Marble/swirl effect background."""
+    comp.style.background = f"radial-gradient(circle at 30% 20%, {color}30 0%, transparent 50%), radial-gradient(circle at 70% 80%, {color}20 0%, transparent 50%)"
+    return comp
+
+
+def neumorph(comp, light_color: str = "#FFFFFF", dark_color: str = "#000000", depth: str = "2px"):
+    """Neumorphic (emboss) effect."""
+    comp.style.background = light_color
+    comp.style.box_shadow = f"""
+        {depth} 5px 10px rgba({int(dark_color.lstrip('#')[0:2], 16)}, {int(dark_color.lstrip('#')[2:4], 16)}, {int(dark_color.lstrip('#')[4:6], 16)}, 0.3),
+        {-int(depth.replace('px', ''))} 5px 10px rgba(0,0,0,0.2)
+    """
+    comp.style.border_radius = "10px"
+    return comp
+
+
+def gradient_border(comp, colors: str = "ungu-ke-biru", width: str = "2px"):
+    """Gradient border effect."""
+    gradient_map = {
+        "ungu-ke-biru": "linear-gradient(135deg, #7C3AED, #06B6D4)",
+        "biru-ke-cyan": "linear-gradient(135deg, #3B82F6, #06B6D4)",
+        "pink-ke-ungu": "linear-gradient(135deg, #EC4899, #7C3AED)",
+        "hijau-ke-cyan": "linear-gradient(135deg, #22C55E, #06B6D4)",
+        "orange-ke-pink": "linear-gradient(135deg, #F97316, #EC4899)",
+    }
+    comp.style.border = f"{width} solid {gradient_map.get(colors, colors)}"
+    comp.style.border_radius = "8px"
+    return comp
+
+
+def neon_text(comp, color: str = "#7C3AED", intensity: str = "strong"):
+    """Neon text effect."""
+    intensities = {
+        "strong": "0 0 10px, 0 0 40px",
+        "medium": "0 0 5px, 0 0 20px",
+        "weak": "0 0 3px, 0 0 10px",
+    }
+    shadow_intensity = intensities.get(intensity, intensities["strong"])
+    comp.style.text_shadow = f"{shadow_intensity} {color}"
+    return comp
+
+
+def bounce(comp):
+    """Add bounce animation."""
+    comp.style.animation = "pvBounce 0.5s ease-in-out"
+    return comp
+
+
+def spin(comp):
+    """Add spin animation."""
+    comp.style.animation = "pvSpin 1s linear infinite"
+    return comp
+
+
+def scale(comp):
+    """Add scale animation."""
+    comp.style.animation = "pvScale 0.3s ease-out"
+    return comp
+
+
+def slide_up(comp):
+    """Slide up animation."""
+    comp.style.animation = "pvSlideUp 0.3s ease-out"
+    return comp
+
+
+def slide_down(comp):
+    """Slide down animation."""
+    comp.style.animation = "pvSlideDown 0.3s ease-out"
+    return comp
+
+
+def slide_left(comp):
+    """Slide left animation."""
+    comp.style.animation = "pvSlideLeft 0.3s ease-out"
+    return comp
+
+
+def slide_right(comp):
+    """Slide right animation."""
+    comp.style.animation = "pvSlideRight 0.3s ease-out"
+    return comp
+
+
+def roll_in(comp):
+    """Roll in animation."""
+    comp.style.animation = "pvRollIn 0.6s ease-out"
+    return comp
+
+
+def rubber_band(comp):
+    """Rubber band animation."""
+    comp.style.animation = "pvRubberBand 0.8s ease-in-out"
+    return comp
+
+
+def jello(comp):
+    """Jello animation."""
+    comp.style.animation = "pvJello 0.8s ease-in-out"
+    return comp
+
+
+def swing(comp):
+    """Swing animation."""
+    comp.style.animation = "pvSwing 0.8s ease-in-out"
+    return comp
+
+
+def typewriter(comp):
+    """Typewriter animation."""
+    comp.style.animation = "pvTypewriter 2s steps(40) forwards"
+    return comp
+
+
+# v1.3.0 NEW style helpers
+def frost(comp, color: str = "#7C3AED"):
+    """Frost/ice effect background with subtle gradient."""
+    comp.style.background = f"""
+        linear-gradient(135deg, {color}10 0%, {color}5 50%, transparent 50%),
+        linear-gradient(135deg, transparent 50%, {color}5 100%, {color}10 100%)
+    """
+    comp.style.backdrop_filter = "blur(20px)"
+    comp.style.border_radius = "12px"
+    return comp
+
+
+def glass_morphism(comp, opacity: float = 0.1, blur: str = "15px"):
+    """Enhanced glassmorphism effect."""
+    comp.style.background = f"rgba(255, 255, 255, {opacity})"
+    comp.style.backdrop_filter = f"blur({blur})"
+    comp.style.border = f"1px solid rgba(255, 255, 255, {1-opacity * 0.5})"
+    comp.style.border_radius = "12px"
+    return comp
+
+
+def neon_glow(comp, color: str = "#7C3AED", intensity: str = "strong"):
+    """Enhanced neon glow with multiple layers."""
+    intensities = {
+        "strong": "0 0 10px, 0 0 40px, 0 0 80px",
+        "medium": "0 0 5px, 0 0 25px, 0 0 50px",
+        "weak": "0 0 3px, 0 0 15px, 0 0 30px",
+    }
+    shadow_tiers = intensities.get(intensity, intensities["strong"])
+    comp.style.text_shadow = f"{shadow_tiers} {color}"
+    return comp
+
+
+def glass_kit(comp, color: str = "#7C3AED"):
+    """Complete glass kit with background, border, and shadow."""
+    comp.style.background = f"rgba(255, 255, 255, 0.1)"
+    comp.style.backdrop_filter = "blur(12px)"
+    comp.style.border = "1px solid rgba(255, 255, 255, 0.3)"
+    comp.style.border_radius = "16px"
+    comp.style.box_shadow = "0 4px 20px rgba(0,0,0,0.1)"
+    return comp
+
+
+def neumorphic(comp, light_color: str = "#FFFFFF", dark_color: str = "#000000", depth: str = "4px"):
+    """Enhanced neumorphic effect with multiple shadow layers."""
+    comp.style.background = light_color
+    r, g, b = int(dark_color.lstrip('#')[0:2], 16), int(dark_color.lstrip('#')[2:4], 16), int(dark_color.lstrip('#')[4:6], 16)
+    comp.style.box_shadow = f"""
+        {depth} 8px 16px rgba({r}, {g}, {b}, 0.3),
+        {-depth} 8px 16px rgba({r}, {g}, {b}, 0.2),
+        inset {depth} 4px 6px rgba({r}, {g}, {b}, 0.1),
+        inset {-depth} 4px 6px rgba({r}, {g}, {b}, 0.1)
+    """
+    comp.style.border_radius = "16px"
+    return comp
+
+
+def border_glass(comp, color: str = "#7C3AED", opacity: float = 0.2):
+    """Glass-like border effect."""
+    comp.style.border = f"{width} solid {color}40"
+    comp.style.border_radius = "8px"
+    return comp
+
+
+def neon_border(comp, color: str = "#7C3AED", width: str = "2px"):
+    """Neon border effect."""
+    comp.style.border = f"{width} solid {color}"
+    comp.style.box_shadow = f"0 0 10px {color}, 0 0 25px {color}"
+    return comp
+
+
+def morph(comp, progress: float = 0.5):
+    """Morphing effect based on progress value."""
+    # Create smooth transition between states
+    comp.style.transition = "all 0.3s ease"
+    return comp
+
+
+def float_label(comp, label: str = "Label"):
+    """Float label effect for input fields."""
+    comp.style.position = "relative"
+    comp.style.margin_bottom = "15px"
+    return comp
+
+
+def input_shadow(comp, color: str = "#7C3AED"):
+    """Input field focus shadow effect."""
+    comp.style.box_shadow = f"0 0 0 2px {color}"
+    return comp
+
+
+def ripple(comp, x: float = 0.5, y: float = 0.5):
+    """Ripple effect for buttons (CSS-only)."""
+    comp.style.position = "relative"
+    comp.style.overflow = "hidden"
+    return comp
+
+
+def count_up(comp, end_value: int, duration: str = "2s"):
+    """Count-up animation for numeric displays."""
+    comp.style.animation = f"pvCountUp {duration} ease-out"
+    # Set the target value as a data attribute
+    comp.style.set('data-target', str(end_value))
     return comp

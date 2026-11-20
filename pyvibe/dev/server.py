@@ -340,8 +340,8 @@ class PyVibeHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         """Custom log format."""
         status_code = args[1] if len(args) > 1 else ""
-        method = args[0].split()[0] if args else ""
-        path = args[0].split()[1] if len(args[0].split()) > 1 else ""
+        method = args[0].split()[0] if args and isinstance(args[0], str) else "GET"
+        path = args[0].split()[1] if args and isinstance(args[0], str) and len(args[0].split()) > 1 else "/"
 
         status_colors = {
             "200": "\033[92m",  # green

@@ -10,7 +10,7 @@ Features:
 - PromptTemplates — Common AI prompts
 
 Usage:
-    from pyvibe.ai import AIUIBuilder, PromptTemplates
+    from pyvibe.ai import AIUIBuilder, PromptTemplates, CodeGenerator, AISuggestion
 
     ai = AIUIBuilder()
     components = ai.generate("Bikin landing page untuk kopi shop")
@@ -26,6 +26,7 @@ import json
 @dataclass
 class AISuggestion:
     """AI component suggestion."""
+
     component: str
     description: str
     code: str
@@ -103,6 +104,15 @@ Komponen: sidebar, kartu_stat, tabel, chart_bar"""
             form_type=form_type, fields=fields_str, validation=validation_str,
         )
 
+    @classmethod
+    def portfolio(cls, name: str = "Developer", skills: Optional[List[str]] = None) -> str:
+        skills_str = ", ".join(skills) if skills else "Python, PyVibe, React"
+        return cls.PORTFOLIO.format(name=name, skills=skills_str)
+
+    @classmethod
+    def ecommerce(cls, title: str = "Toko Online") -> str:
+        return cls.ECOMMERCE
+
 
 class SmartSuggestions:
     """Get smart component suggestions based on context."""
@@ -114,12 +124,14 @@ class SmartSuggestions:
             AISuggestion("features", "Feature grid", "grid(kartu(), kolom=3)", 0.9, "layout"),
             AISuggestion("cta", "Call to action", "tombol('Mulai Sekarang')", 0.85, "input"),
             AISuggestion("footer", "Footer", "footer(copyright='2026')", 0.9, "navigation"),
+            AISuggestion("counter", "Counter/statistics", "statistik([{'label': 'Users', 'value': '1234'}] )", 0.8, "data"),
         ],
         "dashboard": [
             AISuggestion("sidebar", "Sidebar navigation", "sidebar('Dashboard', 'Users')", 0.9, "navigation"),
             AISuggestion("stats", "Stat cards", "kartu_stat('Users', '1,234')", 0.95, "layout"),
             AISuggestion("table", "Data table", "tabel(data)", 0.9, "data"),
             AISuggestion("chart", "Chart", "chart_bar(data)", 0.85, "charts"),
+            AISuggestion("filter", "Filter section", "pilihan('Filter', ['Semua', 'Hari ini', 'Minggu'])", 0.85, "input"),
         ],
         "form": [
             AISuggestion("input", "Text input", "input_teks(label='Nama')", 0.95, "input"),
@@ -127,11 +139,19 @@ class SmartSuggestions:
             AISuggestion("password", "Password input", "input_sandi(label='Password')", 0.9, "input"),
             AISuggestion("textarea", "Textarea", "textarea(label='Pesan')", 0.9, "input"),
             AISuggestion("submit", "Submit button", "tombol('Kirim')", 0.9, "input"),
+            AISuggestion("validasi", "Form validation", "FormBuilder().email('email', required=True).build()", 0.9, "form"),
         ],
         "ecommerce": [
             AISuggestion("product-card", "Product card", "kartu(gambar(), judul(), harga())", 0.95, "layout"),
             AISuggestion("price", "Price display", "teks('Rp 100.000').warna('ungu')", 0.9, "basic"),
             AISuggestion("cart-btn", "Add to cart", "tombol('+ Keranjang', warna='biru')", 0.9, "input"),
+            AISuggestion("filter", "Product filter", "pilihan('Kategori', ['Fashion', 'Elektronik', 'Makanan'])", 0.85, "input"),
+        ],
+        "portfolio": [
+            AISuggestion("hero", "Hero section", "bagian(judul('Portofolio Andi').besar().tengah())", 0.95, "layout"),
+            AISuggestion("skills", "Skills section", "statistik([{'label': 'Python', 'value': 'Expert'}, {'label': 'React', 'value': 'Senior'}])", 0.9, "data"),
+            AISuggestion("project", "Project cards", "grid(kartu(judul('Project 1'), paragraf('Deskripsi')), kolom=2)", 0.9, "layout"),
+            AISuggestion("contact", "Contact section", "footer(copyright='2026')", 0.9, "navigation"),
         ],
     }
 
@@ -154,6 +174,13 @@ class SmartSuggestions:
                 if s.category == category:
                     results.append(s)
         return results
+
+    @classmethod
+    def get_random(cls, category: str, count: int = 3) -> List[AISuggestion]:
+        """Get random suggestions from a category."""
+        import random
+        suggestions = cls.get_by_category(category)
+        return random.sample(suggestions, min(count, len(suggestions)))
 
 
 class AIUIBuilder:
@@ -209,8 +236,26 @@ class AIUIBuilder:
                      "Usage: tombol('Klik', warna='ungu')",
             "form": "Form untuk input data user.\n"
                    "Usage: FormBuilder().text('nama').email('email').build()",
+            "hero": "Hero section untuk landing page.\n"
+                   "Usage: bagian(judul('Judul Utama').besar().tengah())",
+            "footer": "Footer section untuk akhir halaman.\n"
+                     "Usage: footer(copyright='2026')",
         }
         return explanations.get(component, f"Component '{component}' belum ada dokumentasi.")
+
+    def get_template(self, template_name: str) -> str:
+        """Get a prompt template by name."""
+        templates = {
+            "landing": PromptTemplates.landing_page,
+            "dashboard": PromptTemplates.dashboard,
+            "form": PromptTemplates.form,
+            "portfolio": PromptTemplates.portfolio,
+            "ecommerce": PromptTemplates.ecommerce,
+        }
+        template_func = templates.get(template_name)
+        if template_func:
+            return template_func()
+        return ""
 
 
 class CodeGenerator:
@@ -227,7 +272,16 @@ class CodeGenerator:
             for f in features
         )
 
-        return f'''from pyvibe import *
+        # Add theme color CSS variables
+        theme_css = f"""
+:root {{
+    --pv-primary: {color};
+    --pv-primary-light: {color}22;
+    --pv-primary-hover: {color}dd;
+}}
+"""
+
+        return f'''{theme_css}from pyvibe import *
 
 app = App("{title}")
 
@@ -237,7 +291,7 @@ def beranda():
         navbar(judul("{title}"), tombol("Mulai", warna="ungu")),
         bagian(
             judul("{title}").besar().tengah(),
-            paragraf("{subtitle or 'Solusi terbaik untuk Anda'}").tengah().warna("abu-400"),
+            paragraf("{subtitle or 'Solusi terbaik untuk Anda'}).tengah().warna("abu-400"),
             tombol("Mulai Sekarang", warna="ungu"),
             padding="96px 0",
             bg="gradient-ungu",
@@ -316,6 +370,224 @@ def form_page():
             form.render(),
             padding="96px 0",
         ),
+    )
+
+app.jalan()'''
+
+    @staticmethod
+    def ecommerce_page(title: str = "Toko Online", products: Optional[List[Dict]] = None) -> str:
+        """Generate e-commerce page code."""
+        products = products or [
+            {"nama": "Nike Air", "harga": "Rp 1.2M", "gambar": "nike.jpg", "kategori": "Fashion"},
+            {"nama": "Adidas Run", "harga": "Rp 900K", "gambar": "adidas.jpg", "kategori": "Fashion"},
+        ]
+
+        product_cards = "\n".join(
+            f'            kartu(gambar("{p["gambar"]}"), judul("{p["nama"]}"), teks("{p["harga"]}"))'
+            for p in products
+        )
+
+        return f'''from pyvibe import *
+
+app = App("{title}")
+
+@app.route("/")
+def beranda():
+    produk = {str(products)}
+    
+    return tampil(
+        navbar(judul("{title}"), menu=["Beranda", "Produk", "Kontak"]),
+        bagian(
+            judul("Toko Gacor 🛍️").besar().tengah(),
+            paragraf("Belanja gampang, harga gacor!").tengah(),
+            grid(
+{product_cards},
+                kolom=4,
+                gap="24px",
+                padding="32px",
+            ),
+        ),
+        footer(kontainer(paragraf("© 2026 {title}").tengah())),
+    )
+
+app.jalan()'''
+
+    @staticmethod
+    def form_page_advanced(fields: Optional[List[Dict]] = None) -> str:
+        """Generate advanced form code with validation."""
+        fields = fields or [
+            {"name": "nama", "label": "Nama", "type": "text", "required": True},
+            {"name": "email", "label": "Email", "type": "email", "required": True, "validators": ["email"]},
+            {"name": "pesan", "label": "Pesan", "type": "textarea"},
+        ]
+
+        field_code = "\n".join(
+            f'    .{f["type"]}("{f["name"]}", label="{f["label"]}", required={str(f.get("required", False)).lower()})'
+            f'{(f"Validators.{f["validators"][0]}" if f.get("validators") else "")}'
+            for f in fields
+        )
+
+        return f'''from pyvibe import *
+
+app = App("Formulir Canggih")
+
+@app.route("/")
+def form_page():
+    form = (FormBuilder("canggih")
+{field_code}
+        .submit("Kirim")
+        .build()
+    )
+
+    return tampil(
+        bagian(
+            judul("Formulir Canggih").besar().tengah(),
+            form.render(),
+            padding="96px 0",
+        ),
+    )
+
+app.jalan()'''
+
+    @staticmethod
+    def about_page(title: str = "Tentang Kami", team: Optional[List[Dict]] = None) -> str:
+        """Generate about page code."""
+        team = team or [
+            {"name": "Andi Pratama", "role": "Founder", "bio": "Senior Python Developer"},
+            {"name": "Budi Santoso", "role": "CTO", "bio": "Full Stack Architect"},
+        ]
+
+        team_cards = "\n".join(
+            f'            kartu(judul("{t["name"]}"), paragraf("{t["bio"]}"))'
+            for t in team
+        )
+
+        return f'''from pyvibe import *
+
+app = App("{title}")
+
+@app.route("/")
+def tentang():
+    return tampil(
+        navbar(judul("{title}"), menu=["Beranda", "Tim", "Kontak"]),
+        bagian(
+            judul("Tentang Kami").besar().tengah(),
+            paragraf("Tim kami terdiri dari pengembang yang berpengalaman di berbagai industri.").tengah(),
+            grid(
+{team_cards},
+                kolom=3,
+                gap="24px",
+            ),
+            padding="64px 0",
+        ),
+        footer(kontainer(paragraf("© 2026 {title}").tengah())),
+    )
+
+app.jalan()'''
+
+    @staticmethod
+    def pricing_page(title: str = "Paket Langganan", plans: Optional[List[Dict]] = None) -> str:
+        """Generate pricing page code."""
+        plans = plans or [
+            {"name": "Basic", "harga": "Rp 50.000/bulan", "fitur": ["1 project", "5 halaman"], "populer": False},
+            {"name": "Pro", "harga": "Rp 150.000/bulan", "fitur": [" projects", "halaman tidak terbatas", "Support prioritas"], "populer": True},
+            {"name": "Enterprise", "harga": "Rp 500.000/bulan", "fitur": [" projects tidak terbatas", "Support 24/7", "Manager khusus"], "populer": False},
+        ]
+
+        plan_cards = "\n".join(
+            f'            kartu(judul("{p["name"]}"), teks("{p["harga"]}"), paragraf(", ".join(p["fitur"])))'
+            f'{"'" if p.get("populer") else ""} .populer()" if p.get("populer") else ""'
+            for p in plans
+        )
+
+        return f'''from pyvibe import *
+
+app = App("{title}")
+
+@app.route("/")
+def pricing():
+    return tampil(
+        navbar(judul("{title}"), menu=["Beranda", "Fitur", "Kontak"]),
+        bagian(
+            judul("Pilih Paket yang Tepat").besar().tengah(),
+            grid(
+{plan_cards},
+                kolom=3,
+                gap="24px",
+                padding="48px",
+            ),
+            padding="64px 0",
+        ),
+        footer(kontainer(paragraf("© 2026 {title}").tengah())),
+    )
+
+app.jalan()'''
+
+    @staticmethod
+    def contact_page(title: str = "Hubungi Kami", fields: Optional[List[str]] = None) -> str:
+        """Generate contact page code."""
+        fields = fields or ["Nama", "Email", "Pesan", "Topik"]
+
+        field_code = "\n".join(
+            f'    .text("{f.lower()}", label="{f}", required=True)'
+            for f in fields
+        )
+
+        return f'''from pyvibe import *
+
+app = App("{title}")
+
+@app.route("/")
+def kontak():
+    form = (FormBuilder("kontak")
+{field_code}
+        .submit("Kirim")
+        .build()
+    )
+
+    return tampil(
+        bagian(
+            judul("{title}").besar().tengah(),
+            form.render(),
+            padding="96px 0",
+        ),
+        footer(kontainer(paragraf("© 2026 {title}").tengah())),
+    )
+
+app.jalan()'''
+
+    @staticmethod
+    def portfolio_page(title: str = "Portofolio", projects: Optional[List[Dict]] = None) -> str:
+        """Generate portfolio page code."""
+        projects = projects or [
+            {"name": "Project Alpha", "description": "Aplikasi pengelola inventory", "technologies": ["Python", "PyVibe", "SQL"]},
+            {"name": "Project Beta", "description": "Website toko online", "technologies": ["HTML", "CSS", "JavaScript"]},
+        ]
+
+        project_cards = "\n".join(
+            f'            kartu(judul("{p["name"]}"), paragraf("{p["description"]}"), teks(", ".join(p["technologies"])))'
+            for p in projects
+        )
+
+        return f'''from pyvibe import *
+
+app = App("{title}")
+
+@app.route("/")
+def portofolio():
+    return tampil(
+        navbar(judul("{title}"), menu=["Beranda", "Project", "Kontak"]),
+        bagian(
+            judul("Portofolio Saya").besar().tengah(),
+            paragraf("Proyek-proyek terbaik saya.").tengah(),
+            grid(
+{project_cards},
+                kolom=3,
+                gap="24px",
+            ),
+            padding="64px 0",
+        ),
+        footer(kontainer(paragraf("© 2026 {title}").tengah())),
     )
 
 app.jalan()'''

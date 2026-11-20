@@ -344,6 +344,48 @@ class DesignTokens:
                 "secondary": "#DC2626",
                 "accent": "#F59E0B",
             },
+            "ocean": {
+                "primary": "#0891B2", "primary_light": "#67E8F9",
+                "primary_dark": "#0E7490",
+                "secondary": "#06B6D4",
+                "accent": "#F59E0B",
+            },
+            "forest": {
+                "primary": "#059669", "primary_light": "#10B981",
+                "primary_dark": "#047857",
+                "secondary": "#10B981",
+                "accent": "#F59E0B",
+            },
+            "sunrise": {
+                "primary": "#F97316", "primary_light": "#FBBF24",
+                "primary_dark": "#EA580C",
+                "secondary": "#F59E0B",
+                "accent": "#EC4899",
+            },
+            "lavender": {
+                "primary": "#8B5CF6", "primary_light": "#A78BFA",
+                "primary_dark": "#7C3AED",
+                "secondary": "#06B6D4",
+                "accent": "#EC4899",
+            },
+            "cyber": {
+                "primary": "#F87171", "primary_light": "#FFB4B4",
+                "primary_dark": "#DC2626",
+                "secondary": "#06B6D4",
+                "accent": "#10B981",
+            },
+            "pastel": {
+                "primary": "#F472B6", "primary_light": "#FCD3E7",
+                "primary_dark": "#EC4899",
+                "secondary": "#6366F1",
+                "accent": "#10B981",
+            },
+            "neon": {
+                "primary": "#FF0000", "primary_light": "#FFCC00",
+                "primary_dark": "#B71C1C",
+                "secondary": "#00FF00",
+                "accent": "#FF00FF",
+            },
         }
 
         if theme_name in presets:

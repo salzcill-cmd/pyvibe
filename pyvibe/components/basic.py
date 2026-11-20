@@ -186,3 +186,49 @@ def count_down(angka: int, label: str = "", **kwargs) -> Component:
         wrapper.children = [num]
 
     return wrapper
+
+
+def tag(teks: str, warna: str = "abu", **kwargs) -> Component:
+    """Tag / chip component for categories."""
+    color_map = {
+        "ungu": "pv-badge-primary", "biru": "pv-badge-info",
+        "hijau": "pv-badge-success", "merah": "pv-badge-danger",
+        "kuning": "pv-badge-warning", "abu": "pv-badge-gray",
+    }
+    comp = Component(tag="span", content=teks, **kwargs)
+    comp.class_names.append(color_map.get(warna, "pv-badge-gray"))
+    comp.style.margin_right = "8px"
+    comp.style.margin_bottom = "8px"
+    return comp
+
+
+def alert(teks: str, tipe: str = "info", **kwargs) -> Component:
+    """Alert banner component."""
+    color_map = {
+        "success": "pv-alert-success",
+        "danger": "pv-alert-danger",
+        "warning": "pv-alert-warning",
+        "info": "pv-alert-info",
+    }
+    comp = Component(tag="div", content=teks, **kwargs)
+    comp.class_names.append("pv-alert")
+    comp.class_names.append(color_map.get(tipe, "pv-alert-info"))
+    return comp
+
+
+def notification(teks: str, tipe: str = "sukses", **kwargs) -> Component:
+    """Notification/toast component (server-side)."""
+    color_map = {
+        "sukses": "pv-bg-green-500", "danger": "pv-bg-red-500",
+        "warning": "pv-bg-yellow-500", "info": "pv-bg-blue-500",
+    }
+    # Map Indonesian to English for class names
+    type_map = {
+        "sukses": "success", "danger": "danger",
+        "warning": "warning", "info": "info",
+    }
+    comp = Component(tag="div", content=teks, **kwargs)
+    comp.class_names.append("pv-toast")
+    comp.class_names.append(f"pv-bg-{type_map.get(tipe, 'info')}-500")
+    comp.style.color = "white"
+    return comp

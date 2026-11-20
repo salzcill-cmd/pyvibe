@@ -36,6 +36,8 @@ class Renderer:
     def __init__(self, app=None):
         self.app = app
         self._css_classes: Dict[str, str] = {}  # class_name -> css
+        self._design_system_cache: Dict[str, str] = {}  # (primary, secondary) -> css
+        self._style_counter = 0
 
     def render(self, *children: Union[Component, str], **kwargs) -> str:
         """Render children ke HTML string."""
@@ -154,8 +156,12 @@ class Renderer:
             if isinstance(child, Component):
                 css = child.style.to_css()
                 if css:
-                    class_name = f"pv-{child.__class__.__name__.lower()}-{abs(hash(child.content + str(id(child)))) % 100000}"
-                    child.class_names.append(class_name)
+                    self._style_counter += 1
+                    class_name = f"pv-{child.__class__.__name__.lower()}-{self._style_counter}"
+                    # Avoid duplicate class names
+                    if class_name not in self._css_classes or self._css_classes[class_name] != css:
+                        child.class_names.append(class_name)
+                        self._css_classes[class_name] = css
                     styles.append(f".{class_name} {{ {css} }}")
                 for subchild in child.children:
                     sub_styles = self._collect_styles(subchild)
@@ -164,7 +170,10 @@ class Renderer:
         return "\n".join(styles)
 
     def _get_design_system(self, primary: str = "#7C3AED", secondary: str = "#06B6D4") -> str:
-        return f'''/* ========================================
+        # Cache design system CSS per color combination
+        cache_key = f"{primary}_{secondary}"
+        if cache_key not in self._design_system_cache:
+            self._design_system_cache[cache_key] = f'''/* ========================================
    🐍 PyVibe Design System v2
    ======================================== */
 

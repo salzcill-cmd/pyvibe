@@ -94,6 +94,121 @@ def border(component, border: str = "1px solid #E5E7EB"):
     return component
 
 
+def rounded(component, radius: str = "lg"):
+    """Set border radius (alias for bulat)."""
+    return bulat(component, radius)
+
+
+def radius_sm(component):
+    """Set small border radius."""
+    return bulat(component, "sm")
+
+
+def radius_md(component):
+    """Set medium border radius."""
+    return bulat(component, "md")
+
+
+def radius_lg(component):
+    """Set large border radius."""
+    return bulat(component, "lg")
+
+
+def radius_xl(component):
+    """Set extra large border radius."""
+    return bulat(component, "xl")
+
+
+def radius_full(component):
+    """Set full/pill border radius."""
+    return bulat(component, "full")
+
+
+def glass(component, opacity: float = 0.1):
+    """Add glassmorphism effect."""
+    component.style.background = f"rgba(255, 255, 255, {opacity})"
+    component.style.backdrop_filter = "blur(10px)"
+    component.style.border = "1px solid rgba(255, 255, 255, 0.2)"
+    return component
+
+
+def dark_glass(component, opacity: float = 0.3):
+    """Add dark glassmorphism effect."""
+    component.style.background = f"rgba(0, 0, 0, {opacity})"
+    component.style.backdrop_filter = "blur(10px)"
+    component.style.border = "1px solid rgba(255, 255, 255, 0.1)"
+    component.style.color = "white"
+    return component
+
+
+def neon(component, color: str = "#7C3AED"):
+    """Add neon glow effect."""
+    component.style.text_shadow = f"0 0 10px {color}, 0 0 40px {color}"
+    return component
+
+
+def glow(component, color: str = "#7C3AED", radius: str = "20px"):
+    """Add glow effect."""
+    component.style.box_shadow = f"0 0 {radius} {color}40"
+    return component
+
+
+def pulse(component):
+    """Add pulse animation."""
+    component.style.animation = "pv-pulse 2s infinite"
+    return component
+
+
+def float_(component):
+    """Add floating animation."""
+    component.style.animation = "pv-float 3s ease-in-out infinite"
+    return component
+
+
+def skeleton(component, width: str = "100%", height: str = "20px"):
+    """Add skeleton loading effect."""
+    component.style.background = "linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)"
+    component.style.background_size = "200% 100%"
+    component.style.animation = "pv-skeleton 1.5s infinite"
+    component.style.border_radius = "4px"
+    component.style.width = width
+    component.style.height = height
+    return component
+
+
+def typing_cursor(component):
+    """Add typing cursor effect."""
+    component.style.border_right = "2px solid currentColor"
+    component.style.animation = "pv-blink 1s step-end infinite"
+    return component
+
+
+def shake(component):
+    """Add shake animation."""
+    component.style.animation = "pv-shake 0.5s ease-in-out"
+    return component
+
+
+def marquee(component, direction: str = "left", speed: str = "20s"):
+    """Add marquee/scrolling effect."""
+    component.style.overflow = "hidden"
+    component.style.white_space = "nowrap"
+    component.style.animation = f"pv-marquee {speed} linear infinite"
+    return component
+
+
+def zoom_in(component):
+    """Add zoom in animation."""
+    component.style.animation = "pvZoomIn 0.3s ease-out"
+    return component
+
+
+def zoom_out(component):
+    """Add zoom out animation."""
+    component.style.animation = "pvZoomOut 0.3s ease-out"
+    return component
+
+
 def responsif(component, mobile: Optional[str] = None,
               tablet: Optional[str] = None,
               desktop: Optional[str] = None):

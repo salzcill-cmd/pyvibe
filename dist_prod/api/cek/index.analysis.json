@@ -1,0 +1,12 @@
+{
+  "stats": {
+    "html_size": 9282,
+    "has_comments": false,
+    "has_verbose_whitespace": false,
+    "script_tags": 1,
+    "style_tags": 1,
+    "meta_tags": 2
+  },
+  "suggestions": [],
+  "potential_savings": 0
+}

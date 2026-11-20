@@ -148,7 +148,9 @@ def cmd_build(args):
         spec.loader.exec_module(module)
 
         if hasattr(module, "app"):
-            module.app.export(args.output or "dist")
+            # Build with optimization if requested
+            optimize = getattr(args, 'optimize', False)
+            module.app.export(args.output or "dist", optimize=optimize)
         else:
             print("  ❌ No 'app' variable found in app.py!")
     except Exception as e:
@@ -190,6 +192,63 @@ def cmd_version(args):
     print("  📝 Install: pip install pyvibe-id\n")
 
 
+def cmd_config(args):
+    """Generate production configuration files."""
+    print("\n⚙️  Generating production configuration...\n")
+
+    app_file = Path("app.py")
+    if not app_file.exists():
+        print("  ❌ app.py not found!")
+        print("  💡 Run 'pyvibe create <name>' first")
+        return
+
+    try:
+        sys.path.insert(0, os.getcwd())
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("app", "app.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        if hasattr(module, "app"):
+            app = module.app
+            from pyvibe.deploy import Vercel, Netlify, Optimization
+
+            # Generate Vercel config
+            print("🔵 Generating Vercel config...")
+            vercel = Vercel(project_name=app.name)
+            vercel.generate_config()
+            vercel.generate_readme()
+
+            # Generate Netlify config
+            print("🟣 Generating Netlify config...")
+            netlify = Netlify(project_name=app.name)
+            netlify.generate_config()
+            netlify.generate_redirects()
+
+            # Generate bundle analysis
+            dist_dir = os.path.join(os.getcwd(), args.output or "dist")
+            if os.path.exists(dist_dir):
+                print("📊 Generating bundle analysis...")
+                for root, dirs, files in os.walk(dist_dir):
+                    for f in files:
+                        if f.endswith('.html'):
+                            file_path = os.path.join(root, f)
+                            with open(file_path, 'r', encoding='utf-8') as file:
+                                content = file.read()
+                            analysis = Optimization.analyze_bundle(content)
+                            report_path = file_path.replace('.html', '.analysis.json')
+                            with open(report_path, 'w', encoding='utf-8') as f:
+                                import json
+                                json.dump(analysis, f, indent=2)
+                            print(f"  📊 Generated: {os.path.relpath(report_path)}")
+
+            print("\n✅ All configuration files generated!")
+        else:
+            print("  ❌ No 'app' variable found in app.py!")
+    except Exception as e:
+        print(f"  ❌ Error generating config: {e}")
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -223,6 +282,7 @@ def main():
     # build
     build_parser = subparsers.add_parser("build", help="Build static files")
     build_parser.add_argument("-o", "--output", default="dist", help="Output directory")
+    build_parser.add_argument("-O", "--optimize", action="store_true", help="Enable production optimization")
     build_parser.set_defaults(func=cmd_build)
 
     # components
@@ -232,6 +292,11 @@ def main():
     # version
     version_parser = subparsers.add_parser("version", help="Show PyVibe version")
     version_parser.set_defaults(func=cmd_version)
+
+    # config
+    config_parser = subparsers.add_parser("config", help="Generate production configuration")
+    config_parser.add_argument("-o", "--output", default="dist", help="Output directory for analysis")
+    config_parser.set_defaults(func=cmd_config)
 
     args = parser.parse_args()
 

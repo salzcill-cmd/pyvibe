@@ -16,7 +16,7 @@ Usage:
     app.jalan()
 """
 
-__version__ = "0.5.0"
+__version__ = "1.4.0"
 __author__ = "PyVibe Team"
 
 # Core
@@ -30,6 +30,7 @@ from pyvibe.components.basic import (
     judul, subjudul, paragraf, teks, teks_teal, teks_tipis, teks_balik,
     gambar, gambar_rounded, video, iframe, tautan, ikon,
     spasi, pemisah, gradien_teks, badge, avatar, progress_bar, chip, count_down,
+    tag, alert, notification,
 )
 
 # Components - Input
@@ -102,8 +103,9 @@ from pyvibe.style.helpers import (
 
 # Style system
 from pyvibe.style import (
-    Theme, Animation, Responsive,
-    get_theme, list_themes, list_animations,
+    Theme, Animation, Responsive, get_theme, list_themes, list_animations,
+    glass, dark_glass, neon, glow, pulse, float_, skeleton,
+    typing_cursor, shake, marquee, zoom_in, zoom_out,
 )
 
 # Forms system
@@ -304,7 +306,7 @@ __all__ = [
     # Extras
     "stepper", "timeline", "rating", "countdown", "typing_effect",
     "scroll_to_top", "galeri", "code_block", "markdown",
-    "empty_state", "stat_card",
+    "empty_state", "stat_card", "tag", "alert", "notification",
     
     # Modern
     "pagination", "toast", "switch", "avatar_group",

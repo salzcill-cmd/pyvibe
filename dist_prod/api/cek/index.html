@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serious Competitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+None
+    </style>
+</head>
+<body>
+{'status': 'API Aktif', 'version': '2.0.0'}
+<script>
+// 🐍 PyVibe Runtime v2
+class PyVibe {
+    constructor() {
+        this.state = {};
+        this.listeners = {};
+        this.init();
+    }
+
+    init() {
+        document.addEventListener('click', (e) => {
+            // Handle dropdowns
+            const dropdown = e.target.closest('.pv-dropdown');
+            if (dropdown) {
+                const menu = dropdown.querySelector('.pv-dropdown-menu');
+                if (menu) {
+                    document.querySelectorAll('.pv-dropdown-menu.active').forEach(m => {
+                        if (m !== menu) m.classList.remove('active');
+                    });
+                    menu.classList.toggle('active');
+                }
+            } else {
+                document.querySelectorAll('.pv-dropdown-menu.active').forEach(m => m.classList.remove('active'));
+            }
+
+            // Handle accordion
+            const accordionHeader = e.target.closest('.pv-accordion-header');
+            if (accordionHeader) {
+                const item = accordionHeader.parentElement;
+                const isActive = item.classList.contains('active');
+                // Close all
+                item.parentElement.querySelectorAll('.pv-accordion-item').forEach(i => i.classList.remove('active'));
+                // Toggle current
+                if (!isActive) item.classList.add('active');
+            }
+
+            // Handle tabs
+            const tab = e.target.closest('.pv-tab');
+            if (tab) {
+                const tabsContainer = tab.closest('.pv-tabs');
+                if (tabsContainer) {
+                    tabsContainer.querySelectorAll('.pv-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const target = tab.dataset.target;
+                    if (target) {
+                        tabsContainer.querySelectorAll('.pv-tab-content').forEach(c => c.classList.remove('active'));
+                        const content = tabsContainer.querySelector(target);
+                        if (content) content.classList.add('active');
+                    }
+                }
+            }
+
+            // Handle navigation
+            const nav = e.target.closest('[data-navigate]');
+            if (nav) {
+                e.preventDefault();
+                this.navigate(nav.dataset.navigate);
+            }
+
+            // Handle modal open
+            const modalTrigger = e.target.closest('[data-modal-open]');
+            if (modalTrigger) {
+                e.preventDefault();
+                this.openModal(modalTrigger.dataset.modalOpen);
+            }
+
+            // Handle modal close
+            const modalClose = e.target.closest('[data-modal-close]');
+            if (modalClose) {
+                e.preventDefault();
+                const modal = modalClose.closest('.pv-modal');
+                if (modal) this.closeModal(modal.id);
+            }
+
+            // Close modal on backdrop click
+            if (e.target.classList.contains('pv-modal')) {
+                this.closeModal(e.target.id);
+            }
+        });
+
+        // Handle form submissions
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            if (form.dataset.ajax === 'true') {
+                e.preventDefault();
+                this.handleFormSubmit(form);
+            }
+        });
+
+        // Handle input bindings
+        document.addEventListener('input', (e) => {
+            const bind = e.target.dataset.bind;
+            if (bind) {
+                this.setState(bind, e.target.value);
+            }
+        });
+
+        // Initial route
+        this.resolveRoute();
+    }
+
+    // Navigation
+    navigate(path) {
+        window.history.pushState(null, '', path);
+        this.resolveRoute();
+    }
+
+    resolveRoute() {
+        const path = window.location.pathname;
+        document.querySelectorAll('[data-route]').forEach(el => {
+            el.style.display = el.dataset.route === path ? '' : 'none';
+        });
+    }
+
+    // State management
+    setState(key, value) {
+        this.state[key] = value;
+        this.notify(key, value);
+    }
+
+    getState(key) {
+        return this.state[key];
+    }
+
+    notify(key, value) {
+        document.querySelectorAll(`[data-bind="${key}"]`).forEach(el => {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                el.value = value;
+            } else {
+                el.textContent = value;
+            }
+        });
+        // Notify watchers
+        if (this.listeners[key]) {
+            this.listeners[key].forEach(cb => cb(value));
+        }
+    }
+
+    watch(key, callback) {
+        if (!this.listeners[key]) this.listeners[key] = [];
+        this.listeners[key].push(callback);
+    }
+
+    // UI utilities
+    show(id) { const el = document.getElementById(id); if (el) el.classList.remove('pv-hidden'); }
+    hide(id) { const el = document.getElementById(id); if (el) el.classList.add('pv-hidden'); }
+    toggle(id) { const el = document.getElementById(id); if (el) el.classList.toggle('pv-hidden'); }
+
+    // Modal
+    openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Toast notification
+    toast(message, type = 'info', duration = 3000) {
+        const colors = { success: '#22C55E', danger: '#EF4444', warning: '#EAB308', info: '#3B82F6' };
+        const icons = { success: '✅', danger: '❌', warning: '⚠️', info: 'ℹ️' };
+        const toast = document.createElement('div');
+        toast.className = 'pv-toast';
+        toast.style.background = colors[type] || colors.info;
+        toast.innerHTML = `<span>${icons[type] || ''} ${message}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'pvFadeOut 0.3s ease-out';
+            setTimeout(() => toast.remove(), 300);
+        }, duration);
+    }
+
+    // Form handling
+    async handleFormSubmit(form) {
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        const action = form.action || window.location.href;
+        const method = form.method || 'POST';
+
+        try {
+            const response = await fetch(action, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            if (response.ok) {
+                this.toast('Berhasil disimpan!', 'success');
+                form.reset();
+            } else {
+                this.toast('Gagal menyimpan data.', 'danger');
+            }
+        } catch (err) {
+            this.toast('Terjadi kesalahan.', 'danger');
+        }
+    }
+
+    // Fetch data
+    async fetch(url, options = {}) {
+        try {
+            const response = await fetch(url, options);
+            return await response.json();
+        } catch (err) {
+            console.error('PyVibe fetch error:', err);
+            return null;
+        }
+    }
+
+    // DOM manipulation
+    setHTML(id, html) {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+    }
+
+    setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    addClass(id, className) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add(className);
+    }
+
+    removeClass(id, className) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove(className);
+    }
+}
+
+// Utilities
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func(...args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+    // Scroll to element
+    scrollTo(id, smooth = true) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
+    }
+
+    // Countdown
+    countdown(id, targetDate, onComplete) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const target = new Date(targetDate).getTime();
+            const diff = target - now;
+            if (diff <= 0) {
+                clearInterval(timer);
+                el.textContent = '00:00:00';
+                if (onComplete) onComplete();
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+            el.textContent = `${String(days).padStart(2,'0')}d ${String(hours).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        }, 1000);
+    }
+
+    // Number counter animation
+    animateCount(id, target, duration = 2000) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const start = parseInt(el.textContent) || 0;
+        const range = target - start;
+        const startTime = performance.now();
+        const step = (timestamp) => {
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(start + range * eased).toLocaleString('id-ID');
+            if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    // Copy to clipboard
+    async copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            this.toast('Berhasil disalin!', 'success', 1500);
+        } catch {
+            this.toast('Gagal menyalin.', 'danger');
+        }
+    }
+
+    // Theme toggle (dark/light)
+    toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.classList.toggle('pv-dark');
+        localStorage.setItem('pv-theme', isDark ? 'dark' : 'light');
+    }
+
+    initTheme() {
+        const saved = localStorage.getItem('pv-theme');
+        if (saved === 'dark') document.documentElement.classList.add('pv-dark');
+    }
+}
+
+// Utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+function throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+        if (!inThrottle) {
+            func(...args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+}
+
+// Initialize
+const pv = new PyVibe();
+
+// Scroll animation observer
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.pv-scroll-fade, .pv-scroll-left, .pv-scroll-right, .pv-scroll-scale').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+// Init saved theme
+pv.initTheme();
+</script>
+</body>
+</html>
